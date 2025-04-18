@@ -63,6 +63,6 @@
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>
-        <scottPlot:AvaPlot Grid.Column="1" Name="Displayer2D" />
+        <ContentControl Grid.Column="1" Content="{Binding Displayer2D, Mode=OneTime}" />
     </Grid>
 </UserControl>

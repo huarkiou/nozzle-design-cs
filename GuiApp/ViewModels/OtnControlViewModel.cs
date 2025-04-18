@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using MsBox.Avalonia;
-using MsBox.Avalonia.Enums;
+using ScottPlot.Avalonia;
 using Tomlyn;
 using Tomlyn.Model;
 
@@ -31,6 +31,8 @@ public partial class OtnControlViewModel : ViewModelBase
     private double _radiusThroat = 0.0;
     private double _initialExpansionAngle = double.NaN;
     private double _pressureAmbient = 7000.0;
+
+    public AvaPlot Displayer2D { get; } = new();
 
     // MOC Control
     public bool Irrotational
@@ -331,7 +333,11 @@ public partial class OtnControlViewModel : ViewModelBase
 
         var process = new Process();
         process.StartInfo.WorkingDirectory = tmpDir.FullName;
+#if DEBUG
         process.StartInfo.FileName = @"D:\Apps\study\nozzle_design\otn\OptimumNozzle.exe";
+#else
+        process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "OptimumNozzle.exe");
+#endif
         process.StartInfo.Arguments = tmpName;
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
@@ -353,5 +359,13 @@ public partial class OtnControlViewModel : ViewModelBase
         process.BeginOutputReadLine();
         await process.WaitForExitAsync();
         process.Close();
+
+        double[] dataX = [1, 2, 3, 4, 5];
+        double[] dataY = [1, 1.5, 3, 4.5, 5];
+
+        Displayer2D.Plot.Add.Scatter(dataX, dataY);
+        Displayer2D.Plot.Axes.SquareUnits();
+        Displayer2D.Plot.Axes.AutoScale();
+        Displayer2D.Refresh();
     }
 }
