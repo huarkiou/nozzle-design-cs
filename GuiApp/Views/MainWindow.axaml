@@ -4,13 +4,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:GuiApp.ViewModels"
         xmlns:view="clr-namespace:GuiApp.Views"
-        mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="576"
+        mc:Ignorable="d" d:DesignWidth="1232" d:DesignHeight="693"
         x:Class="GuiApp.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="GUI of Nozzle Design Program"
         WindowStartupLocation="CenterOwner"
-        Width="1024" Height="576">
+        Width="1232" Height="693">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,

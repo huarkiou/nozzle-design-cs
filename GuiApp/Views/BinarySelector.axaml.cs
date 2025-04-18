@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 
 namespace GuiApp.Views;
@@ -9,6 +10,7 @@ public partial class BinarySelector : UserControl
     public BinarySelector()
     {
         InitializeComponent();
+        TrueRadioButton.IsChecked = true;
     }
 
     public static readonly StyledProperty<string?> LabelTrueProperty =
@@ -53,5 +55,10 @@ public partial class BinarySelector : UserControl
             TrueRadioButton.IsChecked = IsTrue;
             FalseRadioButton.IsChecked = !IsTrue;
         }
+    }
+
+    private void TrueRadioButton_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
+    {
+        IsTrue = TrueRadioButton.IsChecked == true;
     }
 }

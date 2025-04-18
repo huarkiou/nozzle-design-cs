@@ -6,7 +6,7 @@
              xmlns:scottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
              xmlns:view="clr-namespace:GuiApp.Views"
              x:DataType="vm:OtnControlViewModel"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="1072" d:DesignHeight="603"
              x:Class="GuiApp.Views.OtnControl">
     <Design.DataContext>
         <vm:OtnControlViewModel />
@@ -14,7 +14,8 @@
 
     <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
         <DockPanel Grid.Column="0">
-            <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" HorizontalAlignment="Right">
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
+                <CheckBox Name="IsAdvanced" Content="进阶选项" IsChecked="False" Foreground="Blue" />
                 <Button Name="OtnRun" Margin="10" Width="180" Height="32"
                         Click="OtnRun_OnClick" Content="开始计算"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
@@ -24,21 +25,38 @@
                 <StackPanel DockPanel.Dock="Top" Orientation="Vertical"
                             VerticalAlignment="Top" HorizontalAlignment="Center"
                             Margin="0,15,15,15" Spacing="5">
-                    <view:BinarySelector Name="Planar" LabelTrue="轴对称" LabelFalse="二维" IsTrue="True" />
-                    <view:LabeledInput Label="深度/宽度：" Input="{Binding Width}" IsEnabled="{Binding #Planar.IsTrue}" />
-                    <view:LabeledInput Label="" Input="2" />
-                    <view:LabeledInput Label="" Input="2" />
-                    <view:LabeledInput Label="" Input="2" />
-                    <view:LabeledInput Label="" Input="2" />
-                    <view:LabeledInput Label="" Input="2" />
-                    <view:LabeledInput Label="" Input="2" />
-                    <view:LabeledInput Label="" Input="2" />
-                    <view:LabeledInput Label="" Input="2" />
-                    <view:LabeledInput Label="" Input="2" />
-                    <view:LabeledInput Label="" Input="2" />
-                    <view:LabeledInput Label="" Input="2" />
-                    <view:LabeledInput Label="" Input="2" />
-                    <view:LabeledInput Label="" Input="2" />
+                    <view:BinarySelector Name="IsPlanar" LabelTrue="轴对称" LabelFalse="二维" IsTrue="True" />
+                    <view:LabeledInput Label="进口高度：" Input="1" />
+                    <view:LabeledInput Label="深度/宽度：" Input="{Binding Width}"
+                                       IsEnabled="{Binding #IsPlanar.IsTrue}" />
+                    <view:LabeledInput Label="目标喷管长度：" Input="2" />
+                    <view:LabeledInput Label="目标出口高度：" Input="2" />
+                    <Separator />
+                    <view:LabeledInput Label="平均比热比：" Input="2" />
+                    <view:LabeledInput Label="气体常数：" Input="2" />
+                    <view:LabeledInput Label="进口总压：" Input="2" />
+                    <view:LabeledInput Label="进口总温：" Input="2" />
+                    <view:LabeledInput Label="进口马赫数：" Input="2" />
+                    <view:LabeledInput Label="进口气流角：" Input="0"
+                                       IsVisible="{Binding #IsAdvanced.IsChecked}"
+                                       Foreground="{Binding #IsAdvanced.Foreground}" />
+                    <view:LabeledInput Label="出口背压：" Input="2" />
+                    <Separator />
+                    <view:LabeledInput Label="过渡圆弧半径：" Input="2" />
+                    <view:LabeledInput Label="初始膨胀角：" Input="nan" />
+                    <Separator IsVisible="{Binding #IsAdvanced.IsChecked}" />
+                    <view:LabeledInput Label="容许误差：" Input="2"
+                                       IsVisible="{Binding #IsAdvanced.IsChecked}"
+                                       Foreground="{Binding #IsAdvanced.Foreground}" />
+                    <view:LabeledInput Label="初始网格点数：" Input="2"
+                                       IsVisible="{Binding #IsAdvanced.IsChecked}"
+                                       Foreground="{Binding #IsAdvanced.Foreground}" />
+                    <view:LabeledInput Label="最大校正步数：" Input="40"
+                                       IsVisible="{Binding #IsAdvanced.IsChecked}"
+                                       Foreground="{Binding #IsAdvanced.Foreground}" />
+                    <view:BinarySelector Name="Irrotational" LabelTrue="无旋" LabelFalse="有旋" IsTrue="True"
+                                         IsVisible="{Binding #IsAdvanced.IsChecked}"
+                                         Foreground="{Binding #IsAdvanced.Foreground}" />
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>
