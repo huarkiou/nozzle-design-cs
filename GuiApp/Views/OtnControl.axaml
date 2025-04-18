@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:GuiApp.ViewModels"
              xmlns:scottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
-             xmlns:local="clr-namespace:GuiApp.Views"
+             xmlns:view="clr-namespace:GuiApp.Views"
              x:DataType="vm:OtnControlViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="GuiApp.Views.OtnControl">
@@ -15,19 +15,32 @@
     <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
         <DockPanel Grid.Column="0">
             <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" HorizontalAlignment="Right">
-                <Button Name="OtnRun" Margin="10" Click="OtnRun_OnClick">计算</Button>
+                <Button Name="OtnRun" Margin="10" Width="180" Height="32"
+                        Click="OtnRun_OnClick" Content="开始计算"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
             </StackPanel>
             <Separator DockPanel.Dock="Bottom" Margin="0,10,0,0" />
-            <StackPanel DockPanel.Dock="Top" Orientation="Vertical"
-                        VerticalAlignment="Top" HorizontalAlignment="Center"
-                        Margin="0,15,0,15" Spacing="5">
-                <local:LabeledInput Label="{Binding Param01}" Input="1" />
-                <local:LabeledInput Label="{Binding Param02}" Input="2" />
-                <local:LabeledInput Label="{Binding Param02}" Input="2" />
-                <local:LabeledInput Label="{Binding Param02}" Input="2" />
-                <local:LabeledInput Label="{Binding Param02}" Input="2" />
-                <local:LabeledInput Label="{Binding Param02}" Input="2" />
-            </StackPanel>
+            <ScrollViewer>
+                <StackPanel DockPanel.Dock="Top" Orientation="Vertical"
+                            VerticalAlignment="Top" HorizontalAlignment="Center"
+                            Margin="0,15,15,15" Spacing="5">
+                    <view:BinarySelector Name="Planar" LabelTrue="轴对称" LabelFalse="二维" IsTrue="True" />
+                    <view:LabeledInput Label="深度/宽度：" Input="{Binding Width}" IsEnabled="{Binding #Planar.IsTrue}" />
+                    <view:LabeledInput Label="" Input="2" />
+                    <view:LabeledInput Label="" Input="2" />
+                    <view:LabeledInput Label="" Input="2" />
+                    <view:LabeledInput Label="" Input="2" />
+                    <view:LabeledInput Label="" Input="2" />
+                    <view:LabeledInput Label="" Input="2" />
+                    <view:LabeledInput Label="" Input="2" />
+                    <view:LabeledInput Label="" Input="2" />
+                    <view:LabeledInput Label="" Input="2" />
+                    <view:LabeledInput Label="" Input="2" />
+                    <view:LabeledInput Label="" Input="2" />
+                    <view:LabeledInput Label="" Input="2" />
+                    <view:LabeledInput Label="" Input="2" />
+                </StackPanel>
+            </ScrollViewer>
         </DockPanel>
         <scottPlot:AvaPlot Grid.Column="1" Name="Displayer2D" />
     </Grid>

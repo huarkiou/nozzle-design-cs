@@ -3,12 +3,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:GuiApp.ViewModels"
-        xmlns:local="clr-namespace:GuiApp.Views"
+        xmlns:view="clr-namespace:GuiApp.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="GuiApp.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="GuiApp"
+        Title="GUI of Nozzle Design Program"
         WindowStartupLocation="CenterOwner">
 
     <Design.DataContext>
@@ -30,10 +30,10 @@
         </Menu>
         <TabControl DockPanel.Dock="Bottom" Margin="5">
             <TabItem Header="最大推力喷管">
-                <local:OtnControl />
+                <view:OtnControl />
             </TabItem>
             <TabItem Header="三维流线追踪">
-                <local:SltnControl />
+                <view:SltnControl />
             </TabItem>
         </TabControl>
 
