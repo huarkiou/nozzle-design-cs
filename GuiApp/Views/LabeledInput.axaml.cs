@@ -8,6 +8,7 @@ public partial class LabeledInput : UserControl
     public LabeledInput()
     {
         InitializeComponent();
+        TextBoxInput.TextChanged += (_, _) => { Input = TextBoxInput.Text; };
     }
 
     public static readonly StyledProperty<string?> LabelProperty =

@@ -18,9 +18,4 @@ public partial class OtnControl : UserControl
         Displayer2D.Plot.Axes.AutoScale();
         Displayer2D.Refresh();
     }
-
-    private void OtnRun_OnClick(object? sender, RoutedEventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
 }

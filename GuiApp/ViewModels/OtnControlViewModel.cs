@@ -1,4 +1,5 @@
 ﻿using System;
+using CommunityToolkit.Mvvm.Input;
 
 namespace GuiApp.ViewModels;
 
@@ -30,6 +31,13 @@ public partial class OtnControlViewModel : ViewModelBase
     public double InitialExpansionAngle { get; set; } = double.NaN;
 
     // Outlet
-
     public double PressureAmbient { get; set; } = 7000.0;
+
+
+    [RelayCommand]
+    public void RunOtn()
+    {
+        Gamma = 1.3;
+        Console.WriteLine(Length);
+    }
 }
