@@ -25,10 +25,11 @@
                 <StackPanel DockPanel.Dock="Top" Orientation="Vertical"
                             VerticalAlignment="Top" HorizontalAlignment="Center"
                             Margin="0,15,15,15" Spacing="5">
-                    <view:BinarySelector Name="IsPlanar" LabelTrue="轴对称" LabelFalse="二维" IsTrue="True" />
-                    <view:LabeledInput Label="进口高度：" Input="1" />
+                    <view:BinarySelector Name="IsAxisymmetric" LabelTrue="轴对称" LabelFalse="二维"
+                                         IsTrue="{Binding IsAxisymmetric}" />
                     <view:LabeledInput Label="深度/宽度：" Input="{Binding Width}"
-                                       IsEnabled="{Binding #IsPlanar.IsTrue}" />
+                                       IsVisible="{Binding !#IsAxisymmetric.IsTrue}" />
+                    <view:LabeledInput Label="进口高度：" Input="{Binding InletHeight}" />
                     <view:LabeledInput Label="目标喷管长度：" Input="2" />
                     <view:LabeledInput Label="目标出口高度：" Input="2" />
                     <Separator />
