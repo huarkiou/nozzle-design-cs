@@ -27,37 +27,37 @@
                             VerticalAlignment="Top" HorizontalAlignment="Center"
                             Margin="0,15,15,15" Spacing="5">
                     <view:BinarySelector Name="IsAxisymmetric" LabelTrue="轴对称" LabelFalse="二维"
-                                         IsTrue="{Binding IsAxisymmetric}" />
+                                         IsTrue="{Binding IsAxisymmetric, Mode=TwoWay}" />
                     <view:LabeledInput Label="深度/宽度：" Input="{Binding Width}"
-                                       IsVisible="{Binding !#IsAxisymmetric.IsTrue}" />
-                    <view:LabeledInput Label="进口高度：" Input="{Binding InletHeight}" />
+                                       IsVisible="{Binding !#IsAxisymmetric.IsTrue, Mode=TwoWay}" />
+                    <view:LabeledInput Label="进口高度：" Input="{Binding InletHeight, Mode=TwoWay}" />
                     <view:LabeledInput Label="目标喷管长度：" Input="{Binding Length, Mode=TwoWay}" />
-                    <view:LabeledInput Label="目标出口高度：" Input="{Binding TargetOutletHeight}" />
+                    <view:LabeledInput Label="目标出口高度：" Input="{Binding TargetOutletHeight, Mode=TwoWay}" />
                     <Separator />
-                    <view:LabeledInput Label="平均比热比：" Input="{Binding Gamma}" />
-                    <view:LabeledInput Label="气体常数：" Input="{Binding Rg}" />
-                    <view:LabeledInput Label="进口总压：" Input="{Binding TotalPressure}" />
-                    <view:LabeledInput Label="进口总温：" Input="{Binding TotalTemperature}" />
-                    <view:LabeledInput Label="进口马赫数：" Input="{Binding MachNumber}" />
-                    <view:LabeledInput Label="进口气流角：" Input="{Binding InletTheta}"
+                    <view:LabeledInput Label="平均比热比：" Input="{Binding Gamma, Mode=TwoWay}" />
+                    <view:LabeledInput Label="气体常数：" Input="{Binding Rg, Mode=TwoWay}" />
+                    <view:LabeledInput Label="进口总压：" Input="{Binding TotalPressure, Mode=TwoWay}" />
+                    <view:LabeledInput Label="进口总温：" Input="{Binding TotalTemperature, Mode=TwoWay}" />
+                    <view:LabeledInput Label="进口马赫数：" Input="{Binding MachNumber, Mode=TwoWay}" />
+                    <view:LabeledInput Label="进口气流角：" Input="{Binding InletTheta, Mode=TwoWay}"
                                        IsVisible="{Binding #IsAdvanced.IsChecked}"
                                        Foreground="{Binding #IsAdvanced.Foreground}" />
-                    <view:LabeledInput Label="出口背压：" Input="{Binding PressureAmbient}" />
+                    <view:LabeledInput Label="出口背压：" Input="{Binding PressureAmbient, Mode=TwoWay}" />
                     <Separator />
-                    <view:LabeledInput Label="过渡圆弧半径：" Input="{Binding RadiusThroat}" />
-                    <view:LabeledInput Label="初始膨胀角：" Input="{Binding InitialExpansionAngle}" />
+                    <view:LabeledInput Label="过渡圆弧半径：" Input="{Binding RadiusThroat, Mode=TwoWay}" />
+                    <view:LabeledInput Label="初始膨胀角：" Input="{Binding InitialExpansionAngle, Mode=TwoWay}" />
                     <Separator IsVisible="{Binding #IsAdvanced.IsChecked}" />
-                    <view:LabeledInput Label="容许误差：" Input="{Binding Epsilon}"
+                    <view:LabeledInput Label="容许误差：" Input="{Binding Epsilon, Mode=TwoWay}"
                                        IsVisible="{Binding #IsAdvanced.IsChecked}"
                                        Foreground="{Binding #IsAdvanced.Foreground}" />
-                    <view:LabeledInput Label="初始网格点数：" Input="{Binding NumInletDivision}"
+                    <view:LabeledInput Label="初始网格点数：" Input="{Binding NumInletDivision, Mode=TwoWay}"
                                        IsVisible="{Binding #IsAdvanced.IsChecked}"
                                        Foreground="{Binding #IsAdvanced.Foreground}" />
-                    <view:LabeledInput Label="最大校正步数：" Input="{Binding NumCorrectionMax}"
+                    <view:LabeledInput Label="最大校正步数：" Input="{Binding NumCorrectionMax, Mode=TwoWay}"
                                        IsVisible="{Binding #IsAdvanced.IsChecked}"
                                        Foreground="{Binding #IsAdvanced.Foreground}" />
                     <view:BinarySelector Name="Irrotational" LabelTrue="无旋" LabelFalse="有旋"
-                                         IsTrue="{Binding Irrotational}"
+                                         IsTrue="{Binding Irrotational, Mode=TwoWay}"
                                          IsVisible="{Binding #IsAdvanced.IsChecked}"
                                          Foreground="{Binding #IsAdvanced.Foreground}" />
                 </StackPanel>
