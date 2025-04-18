@@ -1,0 +1,34 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:GuiApp.ViewModels"
+             xmlns:scottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
+             xmlns:local="clr-namespace:GuiApp.Views"
+             x:DataType="vm:OtnControlViewModel"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="GuiApp.Views.OtnControl">
+    <Design.DataContext>
+        <vm:OtnControlViewModel />
+    </Design.DataContext>
+
+    <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
+        <DockPanel Grid.Column="0">
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" HorizontalAlignment="Right">
+                <Button Name="OtnRun" Margin="10" Click="OtnRun_OnClick">计算</Button>
+            </StackPanel>
+            <Separator DockPanel.Dock="Bottom" Margin="0,10,0,0" />
+            <StackPanel DockPanel.Dock="Top" Orientation="Vertical"
+                        VerticalAlignment="Top" HorizontalAlignment="Center"
+                        Margin="0,15,0,15" Spacing="5">
+                <local:LabeledInput Label="{Binding Param01}" Input="1" />
+                <local:LabeledInput Label="{Binding Param02}" Input="2" />
+                <local:LabeledInput Label="{Binding Param02}" Input="2" />
+                <local:LabeledInput Label="{Binding Param02}" Input="2" />
+                <local:LabeledInput Label="{Binding Param02}" Input="2" />
+                <local:LabeledInput Label="{Binding Param02}" Input="2" />
+            </StackPanel>
+        </DockPanel>
+        <scottPlot:AvaPlot Grid.Column="1" Name="Displayer2D" />
+    </Grid>
+</UserControl>
