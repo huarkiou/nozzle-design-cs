@@ -29,10 +29,10 @@
             </MenuItem>
         </Menu>
         <TabControl DockPanel.Dock="Bottom" Margin="5">
-            <TabItem Header="otn">
+            <TabItem Header="最大推力喷管">
                 <local:OtnControl />
             </TabItem>
-            <TabItem Header="sltn">
+            <TabItem Header="三维流线追踪">
                 <local:SltnControl />
             </TabItem>
         </TabControl>
