@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -360,12 +361,49 @@ public partial class OtnControlViewModel : ViewModelBase
         await process.WaitForExitAsync();
         process.Close();
 
-        double[] dataX = [1, 2, 3, 4, 5];
-        double[] dataY = [1, 1.5, 3, 4.5, 5];
+        var geoResultFile = Path.Combine(tmpDir.FullName, "guiapp_geo_all.dat");
+        List<double> dataX = [];
+        List<double> dataY = [];
+        if (File.Exists(geoResultFile))
+        {
+            bool isStart = false;
+            foreach (string line in File.ReadLines(geoResultFile))
+            {
+                if (line.Contains("ROW"))
+                {
+                    if (!isStart)
+                    {
+                        isStart = true;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    var r = line.Split(" ");
+                    if (r.Length == 3)
+                    {
+                        double x = double.Parse(r[0]);
+                        double y = double.Parse(r[1]);
+                        dataX.Add(x);
+                        dataY.Add(y);
+                    }
+                }
+            }
 
-        Displayer2D.Plot.Add.Scatter(dataX, dataY);
-        Displayer2D.Plot.Axes.SquareUnits();
-        Displayer2D.Plot.Axes.AutoScale();
-        Displayer2D.Refresh();
+            Displayer2D.Plot.Add.Scatter(dataX, dataY);
+            Displayer2D.Plot.Add.Line(0, 0, 0, dataY[0]);
+            Displayer2D.Plot.Add.Line(0, 0, dataX[^1], 0);
+            Displayer2D.Plot.Add.Line(dataX[^1], 0, dataX[^1], dataY[^1]);
+            Displayer2D.Plot.Axes.SquareUnits();
+            Displayer2D.Plot.Axes.AutoScale();
+            Displayer2D.Refresh();
+        }
+        else
+        {
+            await MessageBoxManager.GetMessageBoxStandard("错误", "无法正常计算").ShowAsync();
+        }
     }
 }
