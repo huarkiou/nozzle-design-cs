@@ -10,7 +10,7 @@ public partial class BinarySelector : UserControl
     public BinarySelector()
     {
         InitializeComponent();
-        TrueRadioButton.IsChecked = true;
+        IsTrue = true;
     }
 
     public static readonly StyledProperty<string?> LabelTrueProperty =
@@ -52,8 +52,7 @@ public partial class BinarySelector : UserControl
         }
         else if (change.Property == IsTrueProperty)
         {
-            TrueRadioButton.IsChecked = IsTrue;
-            FalseRadioButton.IsChecked = !IsTrue;
+            TrueRadioButton.IsChecked ??= change.NewValue as bool?;
         }
     }
 
