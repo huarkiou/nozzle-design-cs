@@ -18,6 +18,7 @@
                 <CheckBox Name="IsAdvanced" Content="进阶选项" IsChecked="False" Foreground="Blue" />
                 <Button Name="OtnRun" Margin="10" Width="180" Height="32"
                         Content="开始计算" Command="{Binding RunOtn}"
+                        IsEnabled="{Binding !IsRunning, Mode=TwoWay}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
             </StackPanel>
             <Separator DockPanel.Dock="Bottom" Margin="0,10,0,0" />
