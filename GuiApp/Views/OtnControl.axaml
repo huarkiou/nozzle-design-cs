@@ -30,32 +30,33 @@
                     <view:LabeledInput Label="深度/宽度：" Input="{Binding Width}"
                                        IsVisible="{Binding !#IsAxisymmetric.IsTrue}" />
                     <view:LabeledInput Label="进口高度：" Input="{Binding InletHeight}" />
-                    <view:LabeledInput Label="目标喷管长度：" Input="2" />
-                    <view:LabeledInput Label="目标出口高度：" Input="2" />
+                    <view:LabeledInput Label="目标喷管长度：" Input="{Binding Length}" />
+                    <view:LabeledInput Label="目标出口高度：" Input="{Binding TargetOutletHeight}" />
                     <Separator />
-                    <view:LabeledInput Label="平均比热比：" Input="2" />
-                    <view:LabeledInput Label="气体常数：" Input="2" />
-                    <view:LabeledInput Label="进口总压：" Input="2" />
-                    <view:LabeledInput Label="进口总温：" Input="2" />
-                    <view:LabeledInput Label="进口马赫数：" Input="2" />
-                    <view:LabeledInput Label="进口气流角：" Input="0"
+                    <view:LabeledInput Label="平均比热比：" Input="{Binding Gamma}" />
+                    <view:LabeledInput Label="气体常数：" Input="{Binding Rg}" />
+                    <view:LabeledInput Label="进口总压：" Input="{Binding TotalPressure}" />
+                    <view:LabeledInput Label="进口总温：" Input="{Binding TotalTemperature}" />
+                    <view:LabeledInput Label="进口马赫数：" Input="{Binding MachNumber}" />
+                    <view:LabeledInput Label="进口气流角：" Input="{Binding InletTheta}"
                                        IsVisible="{Binding #IsAdvanced.IsChecked}"
                                        Foreground="{Binding #IsAdvanced.Foreground}" />
-                    <view:LabeledInput Label="出口背压：" Input="2" />
+                    <view:LabeledInput Label="出口背压：" Input="{Binding PressureAmbient}" />
                     <Separator />
-                    <view:LabeledInput Label="过渡圆弧半径：" Input="2" />
-                    <view:LabeledInput Label="初始膨胀角：" Input="nan" />
+                    <view:LabeledInput Label="过渡圆弧半径：" Input="{Binding RadiusThroat}" />
+                    <view:LabeledInput Label="初始膨胀角：" Input="{Binding InitialExpansionAngle}" />
                     <Separator IsVisible="{Binding #IsAdvanced.IsChecked}" />
-                    <view:LabeledInput Label="容许误差：" Input="2"
+                    <view:LabeledInput Label="容许误差：" Input="{Binding Epsilon}"
                                        IsVisible="{Binding #IsAdvanced.IsChecked}"
                                        Foreground="{Binding #IsAdvanced.Foreground}" />
-                    <view:LabeledInput Label="初始网格点数：" Input="2"
+                    <view:LabeledInput Label="初始网格点数：" Input="{Binding NumInletDivision}"
                                        IsVisible="{Binding #IsAdvanced.IsChecked}"
                                        Foreground="{Binding #IsAdvanced.Foreground}" />
-                    <view:LabeledInput Label="最大校正步数：" Input="40"
+                    <view:LabeledInput Label="最大校正步数：" Input="{Binding NumCorrectionMax}"
                                        IsVisible="{Binding #IsAdvanced.IsChecked}"
                                        Foreground="{Binding #IsAdvanced.Foreground}" />
-                    <view:BinarySelector Name="Irrotational" LabelTrue="无旋" LabelFalse="有旋" IsTrue="True"
+                    <view:BinarySelector Name="Irrotational" LabelTrue="无旋" LabelFalse="有旋"
+                                         IsTrue="{Binding Irrotational}"
                                          IsVisible="{Binding #IsAdvanced.IsChecked}"
                                          Foreground="{Binding #IsAdvanced.Foreground}" />
                 </StackPanel>
