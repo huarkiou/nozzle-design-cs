@@ -397,13 +397,15 @@ public partial class OtnControlViewModel : ViewModelBase
             Displayer2D.Plot.Add.Line(0, 0, 0, dataY[0]);
             Displayer2D.Plot.Add.Line(0, 0, dataX[^1], 0);
             Displayer2D.Plot.Add.Line(dataX[^1], 0, dataX[^1], dataY[^1]);
-            Displayer2D.Plot.Axes.SquareUnits();
-            Displayer2D.Plot.Axes.AutoScale();
-            Displayer2D.Refresh();
         }
         else
         {
             await MessageBoxManager.GetMessageBoxStandard("错误", "无法正常计算").ShowAsync();
+            Displayer2D.Plot.Clear();
         }
+
+        Displayer2D.Plot.Axes.SquareUnits();
+        Displayer2D.Plot.Axes.AutoScale();
+        Displayer2D.Refresh();
     }
 }
