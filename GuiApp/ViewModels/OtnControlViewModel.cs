@@ -35,6 +35,12 @@ public partial class OtnControlViewModel : ViewModelBase
 
     public AvaPlot Displayer2D { get; } = new();
 
+    private DirectoryInfo? _currentDirectory;
+    private const string ConfigFileName = "otn_config.toml";
+    private const string GeoResultFileName = "geo_all.dat";
+    private const string FieldResultFileName = "field_data.txt";
+    private const string OutputPrefix = "guiapp_";
+
     // MOC Control
     public bool Irrotational
     {
@@ -242,10 +248,10 @@ public partial class OtnControlViewModel : ViewModelBase
     {
         IsRunning = true;
 
-        var tmpDir = Directory.CreateTempSubdirectory("otn");
-        Directory.SetCurrentDirectory(tmpDir.FullName);
+        _currentDirectory?.Delete(true);
+        _currentDirectory = Directory.CreateTempSubdirectory("guiapp-otn-");
+        Console.WriteLine("{0}", _currentDirectory.FullName);
 
-        var tmpName = Guid.NewGuid().ToString("N") + ".toml";
         var otnConfigs = Toml.ToModel("""
                                       ###### 特征线法参数 ######
                                       [MOCControl]
@@ -325,22 +331,21 @@ public partial class OtnControlViewModel : ViewModelBase
             ((TomlTable)otnConfigs["Throat"])["theta"] = InitialExpansionAngle;
             ((TomlTable)otnConfigs["Outlet"])["p_ambient"] = PressureAmbient;
             ((TomlTable)otnConfigs["Outlet"])["p_ambient"] = PressureAmbient;
-            ((TomlTable)otnConfigs["IO"])["output_prefix"] = "guiapp_";
+            ((TomlTable)otnConfigs["IO"])["output_prefix"] = OutputPrefix;
             ((TomlTable)otnConfigs["IO"])["export_icemcfd"] = false;
         }
-        await File.WriteAllTextAsync(tmpName, Toml.FromModel(otnConfigs));
-
-        Console.WriteLine("{0}/{1}", tmpDir.FullName, tmpName);
+        await File.WriteAllTextAsync(Path.Combine(_currentDirectory.FullName, ConfigFileName),
+            Toml.FromModel(otnConfigs));
 
         string output = string.Empty;
         var process = new Process();
-        process.StartInfo.WorkingDirectory = tmpDir.FullName;
+        process.StartInfo.WorkingDirectory = _currentDirectory.FullName;
 #if DEBUG
         process.StartInfo.FileName = @"D:\Apps\study\nozzle_design\otn\OptimumNozzle.exe";
 #else
         process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "OptimumNozzle.exe");
 #endif
-        process.StartInfo.Arguments = tmpName;
+        process.StartInfo.Arguments = ConfigFileName;
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
         process.StartInfo.RedirectStandardError = true;
@@ -350,21 +355,14 @@ public partial class OtnControlViewModel : ViewModelBase
         process.StartInfo.RedirectStandardInput = false;
         process.EnableRaisingEvents = true;
         process.OutputDataReceived += (_, args) => output += args.Data + "\r\n";
-        process.Exited += async (s, _) =>
-        {
-            IsRunning = false;
-            if ((s as Process)!.ExitCode != 0)
-            {
-                await MessageBoxManager.GetMessageBoxStandard("错误", "计算进程异常终止").ShowAsync();
-            }
-        };
+        process.Exited += (_, _) => { IsRunning = false; };
 
         process.Start();
         process.BeginOutputReadLine();
         await process.WaitForExitAsync();
         process.Close();
 
-        var geoResultFile = Path.Combine(tmpDir.FullName, "guiapp_geo_all.dat");
+        var geoResultFile = Path.Combine(_currentDirectory.FullName, OutputPrefix + GeoResultFileName);
         List<double> dataX = [];
         List<double> dataY = [];
         if (File.Exists(geoResultFile))
