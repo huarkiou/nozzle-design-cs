@@ -332,6 +332,7 @@ public partial class OtnControlViewModel : ViewModelBase
 
         Console.WriteLine("{0}/{1}", tmpDir.FullName, tmpName);
 
+        string output = string.Empty;
         var process = new Process();
         process.StartInfo.WorkingDirectory = tmpDir.FullName;
 #if DEBUG
@@ -343,10 +344,12 @@ public partial class OtnControlViewModel : ViewModelBase
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
         process.StartInfo.RedirectStandardError = true;
+        process.StartInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
         process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
         process.StartInfo.RedirectStandardInput = false;
         process.EnableRaisingEvents = true;
-        process.OutputDataReceived += (_, args) => Console.WriteLine(args.Data);
+        process.OutputDataReceived += (_, args) => output += args.Data + "\r\n";
         process.Exited += async (s, _) =>
         {
             IsRunning = false;
@@ -400,7 +403,7 @@ public partial class OtnControlViewModel : ViewModelBase
         }
         else
         {
-            await MessageBoxManager.GetMessageBoxStandard("错误", "无法正常计算").ShowAsync();
+            await MessageBoxManager.GetMessageBoxStandard("错误", "无法正常计算，程序输出内容如下：\n" + output).ShowAsync();
             Displayer2D.Plot.Clear();
         }
 
