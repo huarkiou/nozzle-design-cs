@@ -352,7 +352,7 @@ public partial class OtnControlViewModel : ViewModelBase
             IsRunning = false;
             if ((s as Process)!.ExitCode != 0)
             {
-                await MessageBoxManager.GetMessageBoxStandard("错误", "无法正常计算").ShowAsync();
+                await MessageBoxManager.GetMessageBoxStandard("错误", "计算进程异常终止").ShowAsync();
             }
         };
 
