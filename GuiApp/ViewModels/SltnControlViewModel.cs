@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
+using GuiApp.Views;
 using MsBox.Avalonia;
 using ScottPlot.Avalonia;
 using Tomlyn;
@@ -13,6 +14,8 @@ namespace GuiApp.ViewModels;
 public partial class SltnControlViewModel : ViewModelBase
 {
     public AvaPlot Displayer2D { get; } = new();
+    public CrossSectionControl Inlet { get; } = new() { Label = "进口截面形状：" };
+    public CrossSectionControl Outlet { get; } = new() { Label = "出口截面形状：" };
 
     private DirectoryInfo? _currentDirectory;
     private const string ConfigFileName = "sltn_config.toml";
@@ -34,9 +37,23 @@ public partial class SltnControlViewModel : ViewModelBase
     [RelayCommand]
     public void PreviewCrossSection()
     {
-        List<double> dataX = [];
-        List<double> dataY = [];
-        Displayer2D.Plot.Add.Scatter(dataX, dataY);
+        Displayer2D.Plot.Clear();
+        Displayer2D.Plot.Add.Circle(0, 0, 1);
+
+        var type = (Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer;
+        if (type is CrossSectionCircle)
+        {
+            var circle = (type.DataContext as CrossSectionCircleViewModel)!;
+            Displayer2D.Plot.Add.Circle(circle.X, circle.Y, circle.Radius);
+        }
+
+        type = (Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer;
+        if (type is CrossSectionCircle)
+        {
+            var circle = (type.DataContext as CrossSectionCircleViewModel)!;
+            Displayer2D.Plot.Add.Circle(circle.X, circle.Y, circle.Radius);
+        }
+
         Displayer2D.Plot.Axes.SquareUnits();
         Displayer2D.Plot.Axes.AutoScale();
         Displayer2D.Refresh();
@@ -46,6 +63,18 @@ public partial class SltnControlViewModel : ViewModelBase
     public async Task RunSltn()
     {
         IsRunning = true;
+
+        var config = """
+                     ###### 进口截面参数 ######
+                     [Inlet]
+                     """;
+        var type = (Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer;
+        if (type is CrossSectionCircle)
+        {
+            config += (type.DataContext as CrossSectionCircleViewModel)!.ToString();
+        }
+
+        Console.WriteLine(config);
 
         _currentDirectory?.Delete(true);
         _currentDirectory = Directory.CreateTempSubdirectory("guiapp-sltn-");

@@ -26,9 +26,9 @@
                 <Grid DockPanel.Dock="Top" ColumnDefinitions="*" RowDefinitions="*,Auto,*"
                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                       Margin="0,15,15,15">
-                    <view:CrossSectionControl Name="Inlet" Grid.Row="0" Label="进口截面形状：" />
+                    <ContentControl Grid.Row="0" Content="{Binding Inlet, Mode=OneTime}" />
                     <Separator Grid.Row="1" />
-                    <view:CrossSectionControl Name="Outlet" Grid.Row="2" Label="出口截面形状：" />
+                    <ContentControl Grid.Row="2" Content="{Binding Outlet, Mode=OneTime}" />
                 </Grid>
             </ScrollViewer>
         </DockPanel>
