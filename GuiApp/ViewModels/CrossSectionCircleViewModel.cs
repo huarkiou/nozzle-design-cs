@@ -10,7 +10,6 @@ public class CrossSectionCircleViewModel : ViewModelBase
             if (value.Equals(field)) return;
             field = value;
             OnPropertyChanged();
-            OnPropertyChanged();
         }
     } = 0;
     public double Y

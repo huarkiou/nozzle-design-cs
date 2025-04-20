@@ -25,6 +25,6 @@
                       SelectedItem="{Binding SelectedCrossSectionType, Mode=TwoWay}">
             </ComboBox>
         </StackPanel>
-        <ContentControl Content="{Binding CrossSectionInputer, Mode=TwoWay}" />
+        <ContentControl Name="InputerControl" Content="{Binding CrossSectionInputer, Mode=TwoWay}" />
     </StackPanel>
 </UserControl>
