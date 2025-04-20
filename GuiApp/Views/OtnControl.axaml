@@ -14,7 +14,7 @@
     <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
         <DockPanel Grid.Column="0">
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
-                <CheckBox Name="IsAdvanced" Content="进阶选项" IsChecked="False" Foreground="Blue" />
+                <CheckBox Name="IsAdvanced" Content="进阶选项" IsChecked="False" Foreground="Blue" Width="123" Height="32" />
                 <Button Name="OtnRun" Margin="10" Width="180" Height="32"
                         Content="开始计算" Command="{Binding RunOtn}"
                         IsEnabled="{Binding !IsRunning, Mode=TwoWay}"

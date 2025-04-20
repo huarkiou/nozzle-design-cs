@@ -9,8 +9,6 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        OtnControl.DataContext = new OtnControlViewModel();
-        // SltnControl.DataContext = new SltnControlViewModel();
     }
 
     private void Quit(object? sender, RoutedEventArgs e)
