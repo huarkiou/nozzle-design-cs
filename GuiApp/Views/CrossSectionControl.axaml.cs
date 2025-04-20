@@ -11,7 +11,6 @@ public partial class CrossSectionControl : UserControl
     public CrossSectionControl()
     {
         InitializeComponent();
-        DataContext = new CrossSectionControlViewModel();
     }
 
     public static readonly StyledProperty<string?> LabelProperty =

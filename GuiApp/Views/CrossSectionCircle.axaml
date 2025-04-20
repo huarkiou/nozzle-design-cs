@@ -7,9 +7,9 @@
              x:DataType="vm:CrossSectionCircleViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="GuiApp.Views.CrossSectionCircle">
-    <Design.DataContext>
+    <UserControl.DataContext>
         <vm:CrossSectionCircleViewModel />
-    </Design.DataContext>
+    </UserControl.DataContext>
     <StackPanel Orientation="Vertical"
                 VerticalAlignment="Top" HorizontalAlignment="Center"
                 Margin="0,15,15,15" Spacing="5">

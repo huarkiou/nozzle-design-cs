@@ -11,6 +11,5 @@ public partial class OtnControl : UserControl
     public OtnControl()
     {
         InitializeComponent();
-        DataContext = new OtnControlViewModel();
     }
 }

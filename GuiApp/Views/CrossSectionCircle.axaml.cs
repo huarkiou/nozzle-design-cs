@@ -8,6 +8,5 @@ public partial class CrossSectionCircle : UserControl
     public CrossSectionCircle()
     {
         InitializeComponent();
-        DataContext = new CrossSectionCircleViewModel();
     }
 }

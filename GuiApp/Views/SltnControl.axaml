@@ -7,9 +7,9 @@
              x:DataType="vm:SltnControlViewModel"
              mc:Ignorable="d" d:DesignWidth="1072" d:DesignHeight="603"
              x:Class="GuiApp.Views.SltnControl">
-    <Design.DataContext>
+    <UserControl.DataContext>
         <vm:SltnControlViewModel />
-    </Design.DataContext>
+    </UserControl.DataContext>
     <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
         <DockPanel Grid.Column="0">
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">

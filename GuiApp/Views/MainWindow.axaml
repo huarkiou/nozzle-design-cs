@@ -11,12 +11,9 @@
         Title="GUI of Nozzle Design Program"
         WindowStartupLocation="CenterOwner"
         Width="1232" Height="693">
-
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+    <Window.DataContext>
         <vm:MainWindowViewModel />
-    </Design.DataContext>
+    </Window.DataContext>
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -31,10 +28,10 @@
         </Menu>
         <TabControl DockPanel.Dock="Bottom" Margin="5">
             <TabItem Header="最大推力喷管">
-                <view:OtnControl Name="OtnControl"/>
+                <view:OtnControl Name="OtnControl" />
             </TabItem>
             <TabItem Header="三维流线追踪">
-                <view:SltnControl Name="SltnControl"/>
+                <view:SltnControl Name="SltnControl" />
             </TabItem>
         </TabControl>
 

@@ -10,6 +10,5 @@ public partial class SltnControl : UserControl
     public SltnControl()
     {
         InitializeComponent();
-        DataContext = new SltnControlViewModel();
     }
 }

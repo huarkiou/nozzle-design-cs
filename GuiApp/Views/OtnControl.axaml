@@ -7,9 +7,9 @@
              x:DataType="vm:OtnControlViewModel"
              mc:Ignorable="d" d:DesignWidth="1072" d:DesignHeight="603"
              x:Class="GuiApp.Views.OtnControl">
-    <Design.DataContext>
+    <UserControl.DataContext>
         <vm:OtnControlViewModel />
-    </Design.DataContext>
+    </UserControl.DataContext>
 
     <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
         <DockPanel Grid.Column="0">
