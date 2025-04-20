@@ -4,13 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:GuiApp.ViewModels"
              xmlns:view="clr-namespace:GuiApp.Views"
+             x:DataType="vm:CrossSectionCircleViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="GuiApp.Views.CrossSectionCircle">
+    <Design.DataContext>
+        <vm:CrossSectionCircleViewModel />
+    </Design.DataContext>
     <StackPanel Orientation="Vertical"
                 VerticalAlignment="Top" HorizontalAlignment="Center"
                 Margin="0,15,15,15" Spacing="5">
-        <view:LabeledInput />
-        <view:LabeledInput />
-        <view:LabeledInput />
+        <view:LabeledInput Label="圆心x：" Input="{Binding X, Mode=TwoWay}" />
+        <view:LabeledInput Label="圆心y：" Input="{Binding Y, Mode=TwoWay}" />
+        <view:LabeledInput Label="半径R：" Input="{Binding Radius, Mode=TwoWay}" />
     </StackPanel>
 </UserControl>
