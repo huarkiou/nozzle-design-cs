@@ -46,8 +46,8 @@
                                         Minimum="-1000" Maximum="1000" />
                 </StackPanel>
             </Expander>
-            <ScrollViewer>
-                <Grid DockPanel.Dock="Top" ColumnDefinitions="*" RowDefinitions="*,Auto,*"
+            <ScrollViewer DockPanel.Dock="Top">
+                <Grid ColumnDefinitions="*" RowDefinitions="*,Auto,*"
                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                       Margin="0,15,15,15">
                     <ContentControl Grid.Row="0" Content="{Binding Inlet, Mode=OneTime}" />

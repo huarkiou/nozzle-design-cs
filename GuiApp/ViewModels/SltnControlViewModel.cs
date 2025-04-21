@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using GuiApp.Models;
@@ -231,5 +233,32 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
     public void Receive(BaseFluidFieldMessage message)
     {
         FieldDataSource = message.Value;
+    }
+
+    public async Task ExportResultAsync()
+    {
+        if (_currentDirectory is null)
+        {
+            await MessageBoxManager.GetMessageBoxStandard("错误", "请先计算后再导出").ShowAsync();
+            return;
+        }
+
+        var datResultFile = Path.Combine(_currentDirectory.FullName, DatResultFileName);
+        if (File.Exists(datResultFile))
+        {
+            var storageProvider = Ioc.Default.GetService<IStorageProvider>()!;
+
+            // 启动异步操作以打开对话框。
+            var file = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = "导出（流线追踪喷管）",
+                SuggestedFileName = "sltn.dat"
+            });
+
+            if (file is not null)
+            {
+                File.Copy(datResultFile, file.Path.AbsolutePath, true);
+            }
+        }
     }
 }

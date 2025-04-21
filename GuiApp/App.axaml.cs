@@ -5,9 +5,12 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
+using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using GuiApp.ViewModels;
 using GuiApp.Views;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
 
@@ -37,13 +40,19 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        var serviceCollection = new ServiceCollection();
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new MainWindow();
+            var topLevel = TopLevel.GetTopLevel(desktop.MainWindow);
+            serviceCollection.AddSingleton(topLevel!.StorageProvider);
         }
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        Ioc.Default.ConfigureServices(serviceProvider);
 
         base.OnFrameworkInitializationCompleted();
     }

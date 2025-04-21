@@ -11,22 +11,24 @@
         Title="GUI of Nozzle Design Program"
         WindowStartupLocation="CenterOwner"
         Width="1232" Height="693">
-    <Window.DataContext>
+    <Design.DataContext>
         <vm:MainWindowViewModel />
-    </Window.DataContext>
+    </Design.DataContext>
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_文件">
                 <MenuItem Header="_打开" />
+                <MenuItem Header="_导出" Command="{Binding ExportResult}" />
                 <Separator />
-                <MenuItem Header="_退出" Click="Quit" />
+                <MenuItem Header="_退出" Click="Quit_OnClick" />
             </MenuItem>
             <MenuItem Header="_关于">
-                <MenuItem Header="说明" />
+                <!-- <MenuItem Header="" /> -->
             </MenuItem>
         </Menu>
-        <TabControl DockPanel.Dock="Bottom" Margin="5">
+
+        <TabControl DockPanel.Dock="Bottom" Margin="5" SelectedIndex="{Binding CurrentIndex}">
             <TabItem Header="最大推力喷管">
                 <view:OtnControl Name="OtnControl" />
             </TabItem>

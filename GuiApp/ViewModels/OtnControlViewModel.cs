@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using GuiApp.Models;
@@ -254,5 +256,33 @@ public partial class OtnControlViewModel : ViewModelBase
         Displayer2D.Plot.Axes.SquareUnits();
         Displayer2D.Plot.Axes.AutoScale();
         Displayer2D.Refresh();
+    }
+
+    public async Task ExportResultAsync()
+    {
+        if (_currentDirectory is null)
+        {
+            await MessageBoxManager.GetMessageBoxStandard("错误", "请先计算后再导出").ShowAsync();
+            return;
+        }
+
+        var geoResultFile = Path.Combine(_currentDirectory.FullName, OutputPrefix + GeoResultFileName);
+        if (File.Exists(geoResultFile))
+        {
+            var storageProvider = Ioc.Default.GetService<IStorageProvider>()!;
+
+            // 启动异步操作以打开对话框。
+            var file = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = "导出（流线追踪喷管）",
+                SuggestedFileName = "otn.dat"
+            });
+
+            if (file is not null)
+            {
+                File.Copy(geoResultFile, file.Path.AbsolutePath, true);
+                await MessageBoxManager.GetMessageBoxStandard("提示", "导出成功").ShowAsync();
+            }
+        }
     }
 }

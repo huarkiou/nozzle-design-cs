@@ -21,8 +21,8 @@
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
             </StackPanel>
             <Separator DockPanel.Dock="Bottom" Margin="0,10,0,0" />
-            <ScrollViewer>
-                <StackPanel DockPanel.Dock="Top" Orientation="Vertical"
+            <ScrollViewer DockPanel.Dock="Top">
+                <StackPanel Orientation="Vertical"
                             VerticalAlignment="Top" HorizontalAlignment="Center"
                             Margin="0,15,15,15" Spacing="5">
                     <view:BinarySelector Name="IsAxisymmetric" LabelTrue="轴对称" LabelFalse="二维"
