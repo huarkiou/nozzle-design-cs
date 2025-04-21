@@ -14,7 +14,6 @@ public partial class CrossSectionCircleViewModel : ViewModelBase
     public override string ToString()
     {
         const string ret = """
-                           # 定义截面形状
                            normalized = true
                            shape = 'circle'
                            center = [0, 0.2]

@@ -5,6 +5,8 @@ using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using GuiApp.Models;
 using MsBox.Avalonia;
 using ScottPlot.Avalonia;
 using Tomlyn;
@@ -209,6 +211,8 @@ public partial class OtnControlViewModel : ViewModelBase
         List<double> dataY = [];
         if (File.Exists(geoResultFile))
         {
+            WeakReferenceMessenger.Default.Send(new BaseFluidFieldMessage(Path.Combine(_currentDirectory.FullName,
+                OutputPrefix + FieldResultFileName)), nameof(OtnControlViewModel));
             bool isStart = false;
             foreach (string line in File.ReadLines(geoResultFile))
             {

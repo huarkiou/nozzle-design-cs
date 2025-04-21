@@ -7,9 +7,9 @@
              x:DataType="vm:SltnControlViewModel"
              mc:Ignorable="d" d:DesignWidth="1072" d:DesignHeight="603"
              x:Class="GuiApp.Views.SltnControl">
-    <UserControl.DataContext>
+    <Design.DataContext>
         <vm:SltnControlViewModel />
-    </UserControl.DataContext>
+    </Design.DataContext>
     <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
         <DockPanel Grid.Column="0">
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
@@ -22,6 +22,26 @@
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
             </StackPanel>
             <Separator DockPanel.Dock="Bottom" Margin="0,10,0,0" />
+            <Expander DockPanel.Dock="Bottom"
+                      VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
+                      VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
+                <Expander.Header>进阶控制参数</Expander.Header>
+                <StackPanel Orientation="Vertical">
+                    <view:BinarySelector LabelTrue="轴对称" LabelFalse="二维" ToolTip.Tip="基准流场类型"
+                                         IsTrue="{Binding IsAxisymmetric, Mode=TwoWay}" />
+                    <view:BinarySelector LabelTrue="强制单调" LabelFalse="不强制" ToolTip.Tip="是否强制抹平型面变化"
+                                         IsTrue="{Binding IsMonotonic, Mode=TwoWay}" />
+                    <view:LabeledSlider Label="轴向点数："
+                                        Value="{Binding NumAxialDivision,Mode=TwoWay, StringFormat=\{0:0\}}"
+                                        Minimum="2" Maximum="666" />
+                    <view:LabeledSlider Label="周向点数："
+                                        Value="{Binding NumCircumferentialDivision,Mode=TwoWay, StringFormat=\{0:0\}}"
+                                        Minimum="3" Maximum="666" />
+                    <view:LabeledSlider Label="权函数控制参数：" ToolTip.Tip="值为0时表示线性权函数；值趋于正无穷则顺流向权重大，反之亦然"
+                                        Value="{Binding WeightFunctionParameter,Mode=TwoWay, StringFormat=\{0:0.00\}}"
+                                        Minimum="-1000" Maximum="1000" />
+                </StackPanel>
+            </Expander>
             <ScrollViewer>
                 <Grid DockPanel.Dock="Top" ColumnDefinitions="*" RowDefinitions="*,Auto,*"
                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"

@@ -1,0 +1,21 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="50"
+             x:Class="GuiApp.Views.LabeledSlider">
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Margin="5,0,5,0">
+        <TextBlock Name="TextBlockLabel"
+                   HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0"
+                   Text="数值：" />
+        <Slider Name="SliderValue" Value="0"
+                Minimum="0" Maximum="100"
+                Width="180" />
+        <TextBox Name="TextBoxValue"
+                 HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0"
+                 HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                 MinWidth="60" MaxWidth="60"
+                 Text="{Binding #SliderValue.Value, Mode=TwoWay, StringFormat=\{0:0\}}" />
+    </StackPanel>
+</UserControl>
