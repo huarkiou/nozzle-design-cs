@@ -10,7 +10,8 @@ public partial class BinarySelector : UserControl
     public BinarySelector()
     {
         InitializeComponent();
-        IsTrue = true;
+        IsTrue = !IsTrue;
+        IsTrue = !IsTrue;
         TrueRadioButton.IsCheckedChanged += (_, _) => { IsTrue = TrueRadioButton.IsChecked == true; };
     }
 

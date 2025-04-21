@@ -217,6 +217,8 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         objViewerProcess.StartInfo.Arguments = objResultFile;
         objViewerProcess.StartInfo.UseShellExecute = false;
         objViewerProcess.StartInfo.CreateNoWindow = false;
+        objViewerProcess.StartInfo.RedirectStandardError = false;
+        objViewerProcess.StartInfo.RedirectStandardOutput = true;
         objViewerProcess.EnableRaisingEvents = true;
         objViewerProcess.Exited += (_, _) => { IsRunning = false; };
 
