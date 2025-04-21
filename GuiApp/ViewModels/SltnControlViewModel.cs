@@ -13,6 +13,7 @@ using MsBox.Avalonia;
 using ScottPlot.Avalonia;
 using Tomlyn;
 using Tomlyn.Model;
+using FilePickerFileTypes = Avalonia.Platform.Storage.FilePickerFileTypes;
 
 namespace GuiApp.ViewModels;
 
@@ -237,28 +238,42 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
 
     public async Task ExportResultAsync()
     {
-        if (_currentDirectory is null)
-        {
-            await MessageBoxManager.GetMessageBoxStandard("错误", "请先计算后再导出").ShowAsync();
-            return;
-        }
+        var datResultFile = _currentDirectory is not null
+            ? Path.Combine(_currentDirectory.FullName, DatResultFileName)
+            : null;
+        var objResultFile = _currentDirectory is not null
+            ? Path.Combine(_currentDirectory.FullName, ObjResultFileName)
+            : null;
 
-        var datResultFile = Path.Combine(_currentDirectory.FullName, DatResultFileName);
-        if (File.Exists(datResultFile))
+        if (File.Exists(datResultFile) && File.Exists(objResultFile))
         {
             var storageProvider = Ioc.Default.GetService<IStorageProvider>()!;
-
-            // 启动异步操作以打开对话框。
             var file = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 Title = "导出（流线追踪喷管）",
-                SuggestedFileName = "sltn.dat"
+                DefaultExtension = ".dat",
+                SuggestedFileName = "sltn.dat",
+                ShowOverwritePrompt = true,
+                FileTypeChoices = [FilePickerFileTypes.DatUG, FilePickerFileTypes.Obj]
             });
 
             if (file is not null)
             {
-                File.Copy(datResultFile, file.Path.AbsolutePath, true);
+                if (file.Path.AbsolutePath.EndsWith(".obj"))
+                {
+                    File.Copy(objResultFile, file.Path.AbsolutePath, true);
+                }
+                else if (file.Path.AbsolutePath.EndsWith(".dat"))
+                {
+                    File.Copy(datResultFile, file.Path.AbsolutePath, true);
+                }
+
+                await MessageBoxManager.GetMessageBoxStandard("提示", "导出成功").ShowAsync();
             }
+        }
+        else
+        {
+            await MessageBoxManager.GetMessageBoxStandard("错误", "请先计算后再导出").ShowAsync();
         }
     }
 }

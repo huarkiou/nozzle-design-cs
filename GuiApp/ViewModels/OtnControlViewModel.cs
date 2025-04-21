@@ -260,13 +260,9 @@ public partial class OtnControlViewModel : ViewModelBase
 
     public async Task ExportResultAsync()
     {
-        if (_currentDirectory is null)
-        {
-            await MessageBoxManager.GetMessageBoxStandard("错误", "请先计算后再导出").ShowAsync();
-            return;
-        }
-
-        var geoResultFile = Path.Combine(_currentDirectory.FullName, OutputPrefix + GeoResultFileName);
+        var geoResultFile = _currentDirectory is null
+            ? null
+            : Path.Combine(_currentDirectory.FullName, OutputPrefix + GeoResultFileName);
         if (File.Exists(geoResultFile))
         {
             var storageProvider = Ioc.Default.GetService<IStorageProvider>()!;
@@ -275,7 +271,10 @@ public partial class OtnControlViewModel : ViewModelBase
             var file = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 Title = "导出（流线追踪喷管）",
-                SuggestedFileName = "otn.dat"
+                DefaultExtension = ".dat",
+                SuggestedFileName = "otn.dat",
+                ShowOverwritePrompt = true,
+                FileTypeChoices = [FilePickerFileTypes.DatUG]
             });
 
             if (file is not null)
@@ -283,6 +282,10 @@ public partial class OtnControlViewModel : ViewModelBase
                 File.Copy(geoResultFile, file.Path.AbsolutePath, true);
                 await MessageBoxManager.GetMessageBoxStandard("提示", "导出成功").ShowAsync();
             }
+        }
+        else
+        {
+            await MessageBoxManager.GetMessageBoxStandard("错误", "请先计算后再导出").ShowAsync();
         }
     }
 }
