@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GuiApp.Views;
 using MsBox.Avalonia;
@@ -13,7 +14,6 @@ namespace GuiApp.ViewModels;
 
 public partial class SltnControlViewModel : ViewModelBase
 {
-    public AvaPlot Displayer2D { get; } = new();
     public CrossSectionControl Inlet { get; } = new() { Label = "进口截面形状：" };
     public CrossSectionControl Outlet { get; } = new() { Label = "出口截面形状：" };
 
@@ -23,16 +23,9 @@ public partial class SltnControlViewModel : ViewModelBase
     private const string OutputPrefix = "guiapp_";
 
     // View
-    public bool IsRunning
-    {
-        get;
-        private set
-        {
-            if (value == field) return;
-            field = value;
-            OnPropertyChanged();
-        }
-    }
+    public AvaPlot Displayer2D { get; } = new();
+    [ObservableProperty]
+    public partial bool IsRunning { get; set; } = false;
 
     [RelayCommand]
     public void PreviewCrossSection()

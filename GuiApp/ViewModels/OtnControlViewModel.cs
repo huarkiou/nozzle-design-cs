@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MsBox.Avalonia;
 using ScottPlot.Avalonia;
@@ -13,28 +14,6 @@ namespace GuiApp.ViewModels;
 
 public partial class OtnControlViewModel : ViewModelBase
 {
-    private bool _isRunning = false;
-    private bool _irrotational = true;
-    private bool _isAxisymmetric = true;
-    private double _epsilon = 1e-6;
-    private int _numCorrectionMax = 40;
-    private int _numInletDivision = 101;
-    private double _inletHeight = 1.0;
-    private double _length = 4.0;
-    private double _width = 1.0;
-    private double _targetOutletHeight = double.NaN;
-    private double _gamma = 1.4;
-    private double _rg = 287.042;
-    private double _totalPressure = 800000.0;
-    private double _totalTemperature = 2000.0;
-    private double _machNumber = 1.20;
-    private double _inletTheta = 0.0;
-    private double _radiusThroat = 0.0;
-    private double _initialExpansionAngle = double.NaN;
-    private double _pressureAmbient = 7000.0;
-
-    public AvaPlot Displayer2D { get; } = new();
-
     private DirectoryInfo? _currentDirectory;
     private const string ConfigFileName = "otn_config.toml";
     private const string GeoResultFileName = "geo_all.dat";
@@ -42,206 +21,69 @@ public partial class OtnControlViewModel : ViewModelBase
     private const string OutputPrefix = "guiapp_";
 
     // MOC Control
-    public bool Irrotational
-    {
-        get => _irrotational;
-        set
-        {
-            if (value == _irrotational) return;
-            _irrotational = value;
-            OnPropertyChanged();
-        }
-    }
-    public bool IsAxisymmetric
-    {
-        get => _isAxisymmetric;
-        set
-        {
-            if (value == _isAxisymmetric) return;
-            _isAxisymmetric = value;
-            OnPropertyChanged();
-        }
-    }
-    public double Epsilon
-    {
-        get => _epsilon;
-        set
-        {
-            if (value.Equals(_epsilon)) return;
-            _epsilon = value;
-            OnPropertyChanged();
-        }
-    }
-    public int NumCorrectionMax
-    {
-        get => _numCorrectionMax;
-        set
-        {
-            if (value == _numCorrectionMax) return;
-            _numCorrectionMax = value;
-            OnPropertyChanged();
-        }
-    }
-    public int NumInletDivision
-    {
-        get => _numInletDivision;
-        set
-        {
-            if (value == _numInletDivision) return;
-            _numInletDivision = value;
-            OnPropertyChanged();
-        }
-    }
+    [ObservableProperty]
+    public partial bool Irrotational { get; set; } = true;
+
+    [ObservableProperty]
+    public partial bool IsAxisymmetric { get; set; } = true;
+
+    [ObservableProperty]
+    public partial double Epsilon { get; set; } = 1e-6;
+
+    [ObservableProperty]
+    public partial int NumCorrectionMax { get; set; } = 40;
+
+    [ObservableProperty]
+    public partial int NumInletDivision { get; set; } = 101;
 
     // Geometry
-    public double InletHeight
-    {
-        get => _inletHeight;
-        set
-        {
-            if (value.Equals(_inletHeight)) return;
-            _inletHeight = value;
-            OnPropertyChanged();
-        }
-    }
-    public double Length
-    {
-        get => _length;
-        set
-        {
-            if (value.Equals(_length)) return;
-            _length = value;
-            OnPropertyChanged();
-        }
-    }
-    public double Width
-    {
-        get => _width;
-        set
-        {
-            if (value.Equals(_width)) return;
-            _width = value;
-            OnPropertyChanged();
-        }
-    }
-    public double TargetOutletHeight
-    {
-        get => _targetOutletHeight;
-        set
-        {
-            if (value.Equals(_targetOutletHeight)) return;
-            _targetOutletHeight = value;
-            OnPropertyChanged();
-        }
-    }
+    [ObservableProperty]
+    public partial double InletHeight { get; set; } = 1.0;
+
+    [ObservableProperty]
+    public partial double Length { get; set; } = 4.0;
+
+    [ObservableProperty]
+    public partial double Width { get; set; } = 1.0;
+
+    [ObservableProperty]
+    public partial double TargetOutletHeight { get; set; } = double.NaN;
 
     // Inlet
-    public double Gamma
-    {
-        get => _gamma;
-        set
-        {
-            if (value.Equals(_gamma)) return;
-            _gamma = value;
-            OnPropertyChanged();
-        }
-    }
-    public double Rg
-    {
-        get => _rg;
-        set
-        {
-            if (value.Equals(_rg)) return;
-            _rg = value;
-            OnPropertyChanged();
-        }
-    }
-    public double TotalPressure
-    {
-        get => _totalPressure;
-        set
-        {
-            if (value.Equals(_totalPressure)) return;
-            _totalPressure = value;
-            OnPropertyChanged();
-        }
-    }
-    public double TotalTemperature
-    {
-        get => _totalTemperature;
-        set
-        {
-            if (value.Equals(_totalTemperature)) return;
-            _totalTemperature = value;
-            OnPropertyChanged();
-        }
-    }
-    public double MachNumber
-    {
-        get => _machNumber;
-        set
-        {
-            if (value.Equals(_machNumber)) return;
-            _machNumber = value;
-            OnPropertyChanged();
-        }
-    }
-    public double InletTheta
-    {
-        get => _inletTheta;
-        set
-        {
-            if (value.Equals(_inletTheta)) return;
-            _inletTheta = value;
-            OnPropertyChanged();
-        }
-    }
+    [ObservableProperty]
+    public partial double Gamma { get; set; } = 1.4;
+
+    [ObservableProperty]
+    public partial double Rg { get; set; } = 287.042;
+
+    [ObservableProperty]
+    public partial double TotalPressure { get; set; } = 800000.0;
+
+    [ObservableProperty]
+    public partial double TotalTemperature { get; set; } = 2000.0;
+
+    [ObservableProperty]
+    public partial double MachNumber { get; set; } = 1.20;
+
+    [ObservableProperty]
+    public partial double InletTheta { get; set; } = 0.0;
 
     // Throat
-    public double RadiusThroat
-    {
-        get => _radiusThroat;
-        set
-        {
-            if (value.Equals(_radiusThroat)) return;
-            _radiusThroat = value;
-            OnPropertyChanged();
-        }
-    }
-    public double InitialExpansionAngle
-    {
-        get => _initialExpansionAngle;
-        set
-        {
-            if (value.Equals(_initialExpansionAngle)) return;
-            _initialExpansionAngle = value;
-            OnPropertyChanged();
-        }
-    }
+    [ObservableProperty]
+    public partial double RadiusThroat { get; set; } = 0.0;
+
+    [ObservableProperty]
+    public partial double InitialExpansionAngle { get; set; } = double.NaN;
 
     // Outlet
-    public double PressureAmbient
-    {
-        get => _pressureAmbient;
-        set
-        {
-            if (value.Equals(_pressureAmbient)) return;
-            _pressureAmbient = value;
-            OnPropertyChanged();
-        }
-    }
+    [ObservableProperty]
+    public partial double PressureAmbient { get; set; } = 7000.0;
 
     // View
-    public bool IsRunning
-    {
-        get => _isRunning;
-        private set
-        {
-            if (value == _isRunning) return;
-            _isRunning = value;
-            OnPropertyChanged();
-        }
-    }
+    [ObservableProperty]
+    public partial bool IsRunning { get; set; } = false;
+    public AvaPlot Displayer2D { get; } = new();
+
 
     [RelayCommand]
     public async Task RunOtn()

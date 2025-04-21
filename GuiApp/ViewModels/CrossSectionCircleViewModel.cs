@@ -1,37 +1,15 @@
-﻿namespace GuiApp.ViewModels;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-public class CrossSectionCircleViewModel : ViewModelBase
+namespace GuiApp.ViewModels;
+
+public partial class CrossSectionCircleViewModel : ViewModelBase
 {
-    public double X
-    {
-        get;
-        set
-        {
-            if (value.Equals(field)) return;
-            field = value;
-            OnPropertyChanged();
-        }
-    } = 0;
-    public double Y
-    {
-        get;
-        set
-        {
-            if (value.Equals(field)) return;
-            field = value;
-            OnPropertyChanged();
-        }
-    } = 0;
-    public double Radius
-    {
-        get;
-        set
-        {
-            if (value.Equals(field)) return;
-            field = value;
-            OnPropertyChanged();
-        }
-    } = 1;
+    [ObservableProperty]
+    public partial double X { get; set; } = 0;
+    [ObservableProperty]
+    public partial double Y { get; set; } = 0.1;
+    [ObservableProperty]
+    public partial double Radius { get; set; } = 0.4;
 
     public override string ToString()
     {
