@@ -13,11 +13,15 @@
     <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
         <DockPanel Grid.Column="0">
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Name="Preview" Width="120" Height="32"
+                <Button Name="Preview" Width="100" Height="32"
                         Content="预览截面" Command="{Binding PreviewCrossSection}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
-                <Button Name="SltnRun" Margin="10" Width="180" Height="32"
+                <Button Name="SltnRun" Margin="10" Width="100" Height="32"
                         Content="开始计算" Command="{Binding RunSltn}"
+                        IsEnabled="{Binding !IsRunning, Mode=TwoWay}"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+                <Button Name="PreviewObj" Width="100" Height="32"
+                        Content="预览模型" Command="{Binding PreviewModel}"
                         IsEnabled="{Binding !IsRunning, Mode=TwoWay}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
             </StackPanel>

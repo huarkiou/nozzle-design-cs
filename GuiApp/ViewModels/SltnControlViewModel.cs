@@ -198,12 +198,13 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
     [RelayCommand]
     public async Task PreviewModel()
     {
-        IsRunning = true;
         if (_currentDirectory == null || !File.Exists(Path.Combine(_currentDirectory.FullName, ObjResultFileName)))
         {
             await MessageBoxManager.GetMessageBoxStandard("错误", "请先生成流线追踪喷管后再进行预览").ShowAsync();
             return;
         }
+
+        IsRunning = true;
 
         var objResultFile = Path.Combine(_currentDirectory.FullName, ObjResultFileName);
 
