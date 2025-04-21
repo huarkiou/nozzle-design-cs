@@ -13,6 +13,7 @@ using MsBox.Avalonia;
 using ScottPlot.Avalonia;
 using Tomlyn;
 using Tomlyn.Model;
+using FilePickerFileTypes = GuiApp.Models.FilePickerFileTypes;
 
 namespace GuiApp.ViewModels;
 

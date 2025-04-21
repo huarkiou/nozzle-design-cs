@@ -1,9 +1,8 @@
 ﻿using Avalonia.Platform.Storage;
-using CommunityToolkit.Mvvm.Messaging.Messages;
 
-namespace Avalonia.Platform.Storage;
+namespace GuiApp.Models;
 
-public partial class FilePickerFileTypes
+public static class FilePickerFileTypes
 {
     public static FilePickerFileType DatUG { get; } = new("UG NX .dat文件")
     {
