@@ -17,7 +17,7 @@
                 <CheckBox Name="IsAdvanced" Content="进阶选项" IsChecked="False" Foreground="Blue" Width="123" Height="32" />
                 <Button Name="OtnRun" Margin="10" Width="180" Height="32"
                         Content="开始计算" Command="{Binding RunOtn}"
-                        IsEnabled="{Binding !IsRunning, Mode=TwoWay}"
+                        IsEnabled="{Binding CanRunOtn, Mode=TwoWay}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
             </StackPanel>
             <Separator DockPanel.Dock="Bottom" Margin="0,10,0,0" />
@@ -58,7 +58,8 @@
                     <view:BinarySelector Name="Irrotational" LabelTrue="无旋" LabelFalse="有旋"
                                          IsTrue="{Binding Irrotational, Mode=TwoWay}"
                                          IsVisible="{Binding #IsAdvanced.IsChecked}"
-                                         Foreground="{Binding #IsAdvanced.Foreground}" />
+                                         Foreground="{Binding #IsAdvanced.Foreground}"
+                                         ToolTip.Tip="除测试用途以外不应使用此选项，由于不知什么时候引入的BUG导致采用有旋特征线法大概率无法正常计算" />
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>

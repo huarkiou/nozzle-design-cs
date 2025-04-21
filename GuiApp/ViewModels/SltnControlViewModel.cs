@@ -111,6 +111,7 @@ public partial class SltnControlViewModel : ViewModelBase
         {
             await MessageBoxManager.GetMessageBoxStandard("错误", "无法正常计算，程序输出内容如下：\n" + output).ShowAsync();
             Displayer2D.Plot.Clear();
+            Displayer2D.Refresh();
         }
     }
 }

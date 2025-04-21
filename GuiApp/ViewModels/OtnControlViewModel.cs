@@ -81,14 +81,14 @@ public partial class OtnControlViewModel : ViewModelBase
 
     // View
     [ObservableProperty]
-    public partial bool IsRunning { get; set; } = false;
+    public partial bool CanRunOtn { get; set; } = true;
     public AvaPlot Displayer2D { get; } = new();
 
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunOtn))]
     public async Task RunOtn()
     {
-        IsRunning = true;
+        CanRunOtn = false;
 
         _currentDirectory?.Delete(true);
         _currentDirectory = Directory.CreateTempSubdirectory("guiapp-otn-");
@@ -197,7 +197,7 @@ public partial class OtnControlViewModel : ViewModelBase
         process.StartInfo.RedirectStandardInput = false;
         process.EnableRaisingEvents = true;
         process.OutputDataReceived += (_, args) => output += args.Data + "\r\n";
-        process.Exited += (_, _) => { IsRunning = false; };
+        process.Exited += (_, _) => { CanRunOtn = true; };
 
         process.Start();
         process.BeginOutputReadLine();
