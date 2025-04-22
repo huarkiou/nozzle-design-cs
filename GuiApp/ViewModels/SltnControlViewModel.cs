@@ -80,11 +80,11 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         if (c is not null)
         {
             var points = c.GeneratePoints(NumCircumferentialDivision);
-            var points2 = new Point[points.Length + 1];
-            points.CopyTo(points2, 0);
-            points2[points.Length] = points[0];
-            var dataX = points2.Select(p => p.X).ToArray();
-            var dataY = points2.Select(p => p.Y).ToArray();
+            var pointsCircle = new Point[points.Length + 1];
+            points.CopyTo(pointsCircle, 0);
+            pointsCircle[points.Length] = points[0];
+            var dataX = pointsCircle.Select(p => p.X).ToArray();
+            var dataY = pointsCircle.Select(p => p.Y).ToArray();
             return (dataX, dataY);
         }
 
