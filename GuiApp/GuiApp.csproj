@@ -15,6 +15,7 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <IsPackable>false</IsPackable>
         <LangVersion>preview</LangVersion>
+        <ApplicationIcon>Assets\main.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>

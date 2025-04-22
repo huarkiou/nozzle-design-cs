@@ -7,7 +7,7 @@
         mc:Ignorable="d" d:DesignWidth="1232" d:DesignHeight="693"
         x:Class="GuiApp.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/main.ico"
         Title="GUI of Nozzle Design Program"
         WindowStartupLocation="CenterOwner"
         Width="1232" Height="693">
