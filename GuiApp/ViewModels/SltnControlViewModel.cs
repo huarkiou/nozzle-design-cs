@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Corelib.Geometry;
 using GuiApp.Models;
 using GuiApp.Views;
 using MsBox.Avalonia;
@@ -59,6 +62,34 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
     [NotifyCanExecuteChangedFor(nameof(RunSltnCommand), nameof(PreviewModelCommand))]
     public partial bool CanRunSltn { get; set; } = true;
 
+    private (double[], double[]) GetXYFromInputer(UserControl? type)
+    {
+        IClosedCurve? c = null;
+        switch (type)
+        {
+            case null:
+                break;
+            case CrossSectionCircle:
+            {
+                var circle = (type.DataContext as CrossSectionCircleViewModel)!;
+                c = new Circle(circle.X, circle.Y, circle.Radius);
+                break;
+            }
+        }
+
+        if (c is not null)
+        {
+            var points = c.GeneratePoints(NumCircumferentialDivision);
+            var points2 = new Point[points.Length + 1];
+            points.CopyTo(points2, 0);
+            points2[points.Length] = points[0];
+            var dataX = points2.Select(p => p.X).ToArray();
+            var dataY = points2.Select(p => p.Y).ToArray();
+            return (dataX, dataY);
+        }
+
+        return ([], []);
+    }
 
     // Command
     [RelayCommand]
@@ -67,19 +98,13 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         Displayer2D.Plot.Clear();
         Displayer2D.Plot.Add.Circle(0, 0, 1);
 
-        var type = (Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer;
-        if (type is CrossSectionCircle)
-        {
-            var circle = (type.DataContext as CrossSectionCircleViewModel)!;
-            Displayer2D.Plot.Add.Circle(circle.X, circle.Y, circle.Radius);
-        }
+        (double[] dataX, double[] dataY) =
+            GetXYFromInputer((Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer);
+        Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
 
-        type = (Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer;
-        if (type is CrossSectionCircle)
-        {
-            var circle = (type.DataContext as CrossSectionCircleViewModel)!;
-            Displayer2D.Plot.Add.Circle(circle.X, circle.Y, circle.Radius);
-        }
+        (dataX, dataY) =
+            GetXYFromInputer((Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer);
+        Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
 
         Displayer2D.Plot.Axes.SquareUnits();
         Displayer2D.Plot.Axes.AutoScale();

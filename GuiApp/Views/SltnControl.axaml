@@ -33,8 +33,8 @@
                 <StackPanel Orientation="Vertical">
                     <view:BinarySelector LabelTrue="轴对称" LabelFalse="二维" ToolTip.Tip="基准流场类型"
                                          IsTrue="{Binding IsAxisymmetric, Mode=TwoWay}" />
-                    <view:BinarySelector LabelTrue="强制单调" LabelFalse="不强制" ToolTip.Tip="是否强制抹平型面变化"
-                                         IsTrue="{Binding IsMonotonic, Mode=TwoWay}" />
+                    <view:BinarySelector LabelTrue="不强制单调" LabelFalse="强制单调" ToolTip.Tip="是否强制抹平型面变化"
+                                         IsTrue="{Binding !IsMonotonic, Mode=TwoWay}" />
                     <view:LabeledSlider Label="轴向点数："
                                         Value="{Binding NumAxialDivision,Mode=TwoWay, StringFormat=\{0:0\}}"
                                         Minimum="2" Maximum="666" />

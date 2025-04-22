@@ -6,14 +6,19 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <Company>HKU</Company>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+      <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Geometry\" />
       <Folder Include="Math\" />
     </ItemGroup>
 

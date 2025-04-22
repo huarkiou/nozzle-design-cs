@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 
 namespace GuiApp.Views;
 
@@ -63,5 +64,10 @@ public partial class LabeledSlider : UserControl
         {
             SliderValue.Maximum = Maximum;
         }
+    }
+
+    private void SliderValue_OnValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
+    {
+        Value = e.NewValue;
     }
 }
