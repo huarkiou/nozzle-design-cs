@@ -5,10 +5,6 @@ public class Circle(double x0, double y0, double radius) : IClosedCurve
     public Point Center { get; } = new(x0, y0);
     public double Radius { get; } = radius;
 
-    public Circle() : this(0, 0, 0)
-    {
-    }
-
     public Circle(Point center, double radius) : this(center.X, center.Y, radius)
     {
     }

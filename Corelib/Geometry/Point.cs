@@ -1,15 +1,9 @@
 ﻿namespace Corelib.Geometry;
 
-public struct Point : IEquatable<Point>
+public struct Point(double x, double y) : IEquatable<Point>
 {
-    public double X { get; set; }
-    public double Y { get; set; }
-
-    public Point(double x, double y)
-    {
-        X = x;
-        X = y;
-    }
+    public double X { get; set; } = x;
+    public double Y { get; set; } = y;
 
     public Point() : this(0, 0)
     {

@@ -15,7 +15,7 @@ public partial class CrossSectionControl : UserControl
     public string? Label
     {
         get => GetValue(LabelProperty);
-        set => SetValue(LabelProperty, value);
+        init => SetValue(LabelProperty, value);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

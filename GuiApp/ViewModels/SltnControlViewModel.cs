@@ -62,35 +62,6 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
     [NotifyCanExecuteChangedFor(nameof(RunSltnCommand), nameof(PreviewModelCommand))]
     public partial bool CanRunSltn { get; set; } = true;
 
-    private (double[], double[]) GetXYFromInputer(UserControl? type)
-    {
-        IClosedCurve? c = null;
-        switch (type)
-        {
-            case null:
-                break;
-            case CrossSectionCircle:
-            {
-                var circle = (type.DataContext as CrossSectionCircleViewModel)!;
-                c = new Circle(circle.X, circle.Y, circle.Radius);
-                break;
-            }
-        }
-
-        if (c is not null)
-        {
-            var points = c.GeneratePoints(NumCircumferentialDivision);
-            var pointsCircle = new Point[points.Length + 1];
-            points.CopyTo(pointsCircle, 0);
-            pointsCircle[points.Length] = points[0];
-            var dataX = pointsCircle.Select(p => p.X).ToArray();
-            var dataY = pointsCircle.Select(p => p.Y).ToArray();
-            return (dataX, dataY);
-        }
-
-        return ([], []);
-    }
-
     // Command
     [RelayCommand]
     public void PreviewCrossSection()
@@ -98,17 +69,31 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         Displayer2D.Plot.Clear();
         Displayer2D.Plot.Add.Circle(0, 0, 1);
 
-        (double[] dataX, double[] dataY) =
-            GetXYFromInputer((Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer);
+        (double[] dataX, double[] dataY) = GetXYFromInputer(
+            (Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer!,
+            NumCircumferentialDivision);
         Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
 
-        (dataX, dataY) =
-            GetXYFromInputer((Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer);
+        (dataX, dataY) = GetXYFromInputer((Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer!,
+            NumCircumferentialDivision);
         Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
 
         Displayer2D.Plot.Axes.SquareUnits();
         Displayer2D.Plot.Axes.AutoScale();
         Displayer2D.Refresh();
+        return;
+
+        (double[], double[]) GetXYFromInputer(UserControl type, int numDivision)
+        {
+            IClosedCurve? c = (type.DataContext as IClosedCurveViewModel)?.GetClosedCurve();
+            if (c is null) return ([], []);
+
+            var points = c.GeneratePoints(numDivision);
+            var pointsCircle = new Point[points.Length + 1];
+            points.CopyTo(pointsCircle, 0);
+            pointsCircle[points.Length] = points[0];
+            return (pointsCircle.Select(p => p.X).ToArray(), pointsCircle.Select(p => p.Y).ToArray());
+        }
     }
 
     [RelayCommand]
@@ -128,11 +113,8 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
                           # 定义截面形状
 
                           """;
-        var type = (Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer;
-        if (type is CrossSectionCircle)
-        {
-            inletConfig += (type.DataContext as CrossSectionCircleViewModel)!.ToString();
-        }
+        inletConfig += ((Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer!.DataContext as
+            IClosedCurveViewModel)?.GetTomlString();
 
         var outletConfig = """
                            ###### 出口截面参数 ######
@@ -140,11 +122,8 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
                            # 定义截面形状
 
                            """;
-        type = (Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer;
-        if (type is CrossSectionCircle)
-        {
-            outletConfig += (type.DataContext as CrossSectionCircleViewModel)!.ToString();
-        }
+        outletConfig += ((Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer!.DataContext as
+            IClosedCurveViewModel)?.GetTomlString();
 
         _currentDirectory?.Delete(true);
         _currentDirectory = Directory.CreateTempSubdirectory("guiapp-sltn-");
