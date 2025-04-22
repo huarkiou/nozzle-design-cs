@@ -86,6 +86,7 @@ public partial class OtnControlViewModel : ViewModelBase
 
     // View
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RunOtnCommand))]
     public partial bool CanRunOtn { get; set; } = true;
     public AvaPlot Displayer2D { get; } = new();
 

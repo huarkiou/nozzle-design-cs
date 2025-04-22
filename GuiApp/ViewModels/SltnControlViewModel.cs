@@ -56,7 +56,8 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
     public AvaPlot Displayer2D { get; } = new();
 
     [ObservableProperty]
-    public partial bool IsRunning { get; set; } = false;
+    [NotifyCanExecuteChangedFor(nameof(RunSltnCommand), nameof(PreviewModelCommand))]
+    public partial bool CanRunSltn { get; set; } = true;
 
 
     // Command
@@ -88,14 +89,13 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
     [RelayCommand]
     public async Task RunSltn()
     {
-        IsRunning = true;
-
         if (FieldDataSource is null)
         {
             await MessageBoxManager.GetMessageBoxStandard("错误", "请先生成基准流场").ShowAsync();
-            IsRunning = false;
             return;
         }
+
+        CanRunSltn = false;
 
         var inletConfig = """
                           ###### 进口截面参数 ######
@@ -186,7 +186,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         process.StartInfo.RedirectStandardInput = false;
         process.EnableRaisingEvents = true;
         process.OutputDataReceived += (_, args) => output += args.Data + "\r\n";
-        process.Exited += (_, _) => { IsRunning = false; };
+        process.Exited += (_, _) => { CanRunSltn = true; };
 
         process.Start();
         process.BeginOutputReadLine();
@@ -212,7 +212,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
             return;
         }
 
-        IsRunning = true;
+        CanRunSltn = false;
 
         var objResultFile = Path.Combine(_currentDirectory.FullName, ObjResultFileName);
 
@@ -234,7 +234,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         process.StartInfo.RedirectStandardError = false;
         process.StartInfo.RedirectStandardOutput = true;
         process.EnableRaisingEvents = true;
-        process.Exited += (_, _) => { IsRunning = false; };
+        process.Exited += (_, _) => { CanRunSltn = true; };
 
         process.Start();
         await process.WaitForExitAsync();

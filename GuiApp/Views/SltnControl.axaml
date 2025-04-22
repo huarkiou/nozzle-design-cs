@@ -18,11 +18,11 @@
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
                 <Button Name="SltnRun" Margin="10" Width="100" Height="32"
                         Content="开始计算" Command="{Binding RunSltn}"
-                        IsEnabled="{Binding !IsRunning, Mode=TwoWay}"
+                        IsEnabled="{Binding CanRunSltn, Mode=TwoWay}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
                 <Button Name="PreviewObj" Width="100" Height="32"
                         Content="预览模型" Command="{Binding PreviewModel}"
-                        IsEnabled="{Binding !IsRunning, Mode=TwoWay}"
+                        IsEnabled="{Binding CanRunSltn, Mode=TwoWay}"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
             </StackPanel>
             <Separator DockPanel.Dock="Bottom" Margin="0,10,0,0" />
