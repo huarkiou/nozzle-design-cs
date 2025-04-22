@@ -18,7 +18,7 @@ public interface IClosedCurve
     /// <summary>
     /// 根据采样点数n离散封闭曲线
     /// </summary>
-    /// <param name="n">采样点数量</param>
-    /// <returns>待求点数组</returns>
+    /// <param name="n">采样点数量，保证不少于n，但可能大于n</param>
+    /// <returns>待求点数组，长度可能大于n</returns>
     public Point[] GeneratePoints(int n);
 }

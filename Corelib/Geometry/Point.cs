@@ -9,6 +9,31 @@ public struct Point(double x, double y) : IEquatable<Point>
     {
     }
 
+    public static Point operator +(Point left, Point right)
+    {
+        return new Point(left.X + right.X, left.Y + right.Y);
+    }
+
+    public static Point operator -(Point left, Point right)
+    {
+        return new Point(left.X - right.X, left.Y - right.Y);
+    }
+
+    public static Point operator *(Point left, double right)
+    {
+        return new Point(left.X * right, left.Y * right);
+    }
+
+    public static Point operator *(double left, Point right)
+    {
+        return new Point(left * right.X, left * right.Y);
+    }
+
+    public static Point operator /(Point left, double right)
+    {
+        return new Point(left.X / right, left.Y / right);
+    }
+
     public override string ToString() => $"{{X={X},Y={Y}}}";
 
     public double[] ToArray => [X, Y];
