@@ -3,6 +3,13 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <!-- Recommended Avalonia trimming settings for Native AOT -->
+        <PublishAot>true</PublishAot>
+        <PublishTrimmed>true</PublishTrimmed>
+        <TrimMode>link</TrimMode>
+        <SelfContained>true</SelfContained>
+        <StripSymbols>true</StripSymbols>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -33,6 +40,12 @@
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
         <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
         <PackageReference Include="Tomlyn" Version="0.19.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Preserve Avalonia types for reflection -->
+        <TrimmerRootAssembly Include="Avalonia.Themes.Fluent"/>
+        <!-- <TrimmerRootAssembly Include="Avalonia.Themes.Default"/> -->
     </ItemGroup>
 
     <ItemGroup>

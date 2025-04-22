@@ -2,17 +2,16 @@ using System;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using GuiApp.ViewModels;
 using GuiApp.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
+using System.Diagnostics.CodeAnalysis;
 
 namespace GuiApp;
 
@@ -57,6 +56,9 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
+    [UnconditionalSuppressMessage("Trimming",
+        "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
+        Justification = "<Pending>")]
     private static void DisableAvaloniaDataAnnotationValidation()
     {
         // Get an array of plugins to remove

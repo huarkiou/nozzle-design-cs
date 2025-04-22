@@ -1,7 +1,5 @@
-﻿using System.Globalization;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 
 namespace GuiApp.Views;
 

@@ -216,7 +216,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
 #if DEBUG
         objViewerProcess.StartInfo.FileName = @"D:\Apps\study\nozzle_design\obj_viewer\WavefrontObjViewer.exe";
 #else
-            process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "WavefrontObjViewer.exe");
+        objViewerProcess.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "WavefrontObjViewer.exe");
 #endif
         objViewerProcess.StartInfo.Arguments = objResultFile;
         objViewerProcess.StartInfo.UseShellExecute = false;

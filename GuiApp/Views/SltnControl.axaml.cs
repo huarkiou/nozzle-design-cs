@@ -1,7 +1,4 @@
-﻿using System;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Controls;
 using GuiApp.ViewModels;
 
 namespace GuiApp.Views;
