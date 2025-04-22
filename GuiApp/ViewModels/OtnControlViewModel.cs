@@ -192,6 +192,11 @@ public partial class OtnControlViewModel : ViewModelBase
 #else
         process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "OptimumNozzle.exe");
 #endif
+        if (!File.Exists(process.StartInfo.FileName))
+        {
+            await MessageBoxManager.GetMessageBoxStandard("错误", $"文件缺失：{process.StartInfo.FileName}").ShowAsync();
+        }
+
         process.StartInfo.Arguments = ConfigFileName;
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;

@@ -171,6 +171,11 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
 #else
         process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "StreamlineTraceNozzle.exe");
 #endif
+        if (!File.Exists(process.StartInfo.FileName))
+        {
+            await MessageBoxManager.GetMessageBoxStandard("错误", $"文件缺失：{process.StartInfo.FileName}").ShowAsync();
+        }
+
         process.StartInfo.Arguments = ConfigFileName;
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
@@ -211,24 +216,29 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
 
         var objResultFile = Path.Combine(_currentDirectory.FullName, ObjResultFileName);
 
-        var objViewerProcess = new Process();
-        objViewerProcess.StartInfo.WorkingDirectory = _currentDirectory.FullName;
+        var process = new Process();
+        process.StartInfo.WorkingDirectory = _currentDirectory.FullName;
 #if DEBUG
-        objViewerProcess.StartInfo.FileName = @"D:\Apps\study\nozzle_design\obj_viewer\WavefrontObjViewer.exe";
+        process.StartInfo.FileName = @"D:\Apps\study\nozzle_design\obj_viewer\WavefrontObjViewer.exe";
 #else
-        objViewerProcess.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "WavefrontObjViewer.exe");
+        process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "WavefrontObjViewer.exe");
 #endif
-        objViewerProcess.StartInfo.Arguments = objResultFile;
-        objViewerProcess.StartInfo.UseShellExecute = false;
-        objViewerProcess.StartInfo.CreateNoWindow = false;
-        objViewerProcess.StartInfo.RedirectStandardError = false;
-        objViewerProcess.StartInfo.RedirectStandardOutput = true;
-        objViewerProcess.EnableRaisingEvents = true;
-        objViewerProcess.Exited += (_, _) => { IsRunning = false; };
+        if (!File.Exists(process.StartInfo.FileName))
+        {
+            await MessageBoxManager.GetMessageBoxStandard("错误", $"文件缺失：{process.StartInfo.FileName}").ShowAsync();
+        }
 
-        objViewerProcess.Start();
-        await objViewerProcess.WaitForExitAsync();
-        objViewerProcess.Close();
+        process.StartInfo.Arguments = objResultFile;
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.CreateNoWindow = false;
+        process.StartInfo.RedirectStandardError = false;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.EnableRaisingEvents = true;
+        process.Exited += (_, _) => { IsRunning = false; };
+
+        process.Start();
+        await process.WaitForExitAsync();
+        process.Close();
     }
 
     public void Receive(BaseFluidFieldMessage message)
