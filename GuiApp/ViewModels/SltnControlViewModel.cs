@@ -70,11 +70,11 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         Displayer2D.Plot.Add.Circle(0, 0, 1);
 
         (double[] dataX, double[] dataY) = GetXYFromInputer(
-            (Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer!,
+            (Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer,
             NumCircumferentialDivision);
         Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
 
-        (dataX, dataY) = GetXYFromInputer((Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer!,
+        (dataX, dataY) = GetXYFromInputer((Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer,
             NumCircumferentialDivision);
         Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
 
@@ -83,10 +83,13 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         Displayer2D.Refresh();
         return;
 
-        (double[], double[]) GetXYFromInputer(UserControl type, int numDivision)
+        (double[], double[]) GetXYFromInputer(UserControl? type, int numDivision)
         {
-            IClosedCurve? c = (type.DataContext as IClosedCurveViewModel)?.GetClosedCurve();
-            if (c is null) return ([], []);
+            IClosedCurve? c = (type?.DataContext as IClosedCurveViewModel)?.GetClosedCurve();
+            if (c is null)
+            {
+                return ([], []);
+            }
 
             var points = c.GeneratePoints(numDivision);
             var pointsCircle = new Point[points.Length + 1];
@@ -113,7 +116,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
                           # 定义截面形状
 
                           """;
-        inletConfig += ((Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer!.DataContext as
+        inletConfig += ((Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer?.DataContext as
             IClosedCurveViewModel)?.GetTomlString();
 
         var outletConfig = """
@@ -122,7 +125,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
                            # 定义截面形状
 
                            """;
-        outletConfig += ((Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer!.DataContext as
+        outletConfig += ((Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer?.DataContext as
             IClosedCurveViewModel)?.GetTomlString();
 
         _currentDirectory?.Delete(true);
@@ -203,7 +206,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         }
         else
         {
-            await PreviewModel();
+            await MessageBoxManager.GetMessageBoxStandard("提示", "流线追踪成功，请预览或导出!").ShowAsync();
         }
     }
 

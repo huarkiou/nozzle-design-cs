@@ -1,0 +1,23 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:GuiApp.ViewModels"
+             xmlns:view="clr-namespace:GuiApp.Views"
+             x:DataType="vm:CrossSectionSuperEllipseViewModel"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="450"
+             x:Class="GuiApp.Views.CrossSectionSuperEllipse">
+    <UserControl.DataContext>
+        <vm:CrossSectionSuperEllipseViewModel />
+    </UserControl.DataContext>
+    <StackPanel Orientation="Vertical"
+                VerticalAlignment="Top" HorizontalAlignment="Right"
+                Margin="0,15,15,15" Spacing="5">
+        <view:LabeledInput Label="中心x：" Input="{Binding X, Mode=TwoWay}" />
+        <view:LabeledInput Label="中心y：" Input="{Binding Y, Mode=TwoWay}" />
+        <view:LabeledInput Label="长半轴长a：" Input="{Binding A, Mode=TwoWay}" />
+        <view:LabeledInput Label="短半轴长b：" Input="{Binding B, Mode=TwoWay}" />
+        <view:LabeledInput Label="旋转角α：" Input="{Binding Alpha, Mode=TwoWay}" />
+        <view:LabeledInput Label="幂次n：" Input="{Binding Power, Mode=TwoWay}" />
+    </StackPanel>
+</UserControl>

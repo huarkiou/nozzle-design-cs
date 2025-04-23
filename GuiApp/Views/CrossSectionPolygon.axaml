@@ -1,0 +1,22 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:GuiApp.ViewModels"
+             xmlns:view="clr-namespace:GuiApp.Views"
+             x:DataType="vm:CrossSectionPolygonViewModel"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="450"
+             x:Class="GuiApp.Views.CrossSectionPolygon">
+    <UserControl.DataContext>
+        <vm:CrossSectionPolygonViewModel />
+    </UserControl.DataContext>
+    <StackPanel Orientation="Vertical"
+                VerticalAlignment="Top" HorizontalAlignment="Right"
+                Margin="0,15,15,15" Spacing="5">
+        <view:LabeledInput Label="中心x：" Input="{Binding X, Mode=TwoWay}" />
+        <view:LabeledInput Label="中心y：" Input="{Binding Y, Mode=TwoWay}" />
+        <view:LabeledInput Label="旋转角α：" Input="{Binding Alpha, Mode=TwoWay}" />
+        <view:LabeledInput Label="顶点数据文件：" Input="{Binding VerticesFilePath, Mode=TwoWay}" />
+        <Button Content="选择顶点数据" Command="{Binding ChangeVerticesFile}" />
+    </StackPanel>
+</UserControl>

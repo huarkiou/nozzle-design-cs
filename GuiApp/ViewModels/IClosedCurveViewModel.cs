@@ -4,6 +4,6 @@ namespace GuiApp.ViewModels;
 
 public interface IClosedCurveViewModel
 {
-    public IClosedCurve GetClosedCurve();
+    public IClosedCurve? GetClosedCurve();
     public string GetTomlString();
 }

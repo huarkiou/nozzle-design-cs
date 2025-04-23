@@ -24,6 +24,7 @@
 
     <ItemGroup>
       <Folder Include="Math\" />
+      <Folder Include="Utility\" />
     </ItemGroup>
 
 </Project>

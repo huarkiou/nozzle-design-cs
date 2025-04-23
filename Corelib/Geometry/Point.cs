@@ -62,4 +62,41 @@ public struct Point(double x, double y) : IEquatable<Point>
     {
         return !left.Equals(right);
     }
+
+    public static double Distance(Point p1, Point p2)
+    {
+        return double.Sqrt(double.Pow(p1.X - p2.X, 2) + double.Pow(p1.Y - p2.Y, 2));
+    }
+
+    public double DistanceTo(Point other)
+    {
+        return Distance(this, other);
+    }
+
+    public double PolarAngleTo(Point origin)
+    {
+        return double.Atan2(Y - origin.Y, X - origin.X);
+    }
+
+    public static double Dot(Point lhs, Point rhs)
+    {
+        return lhs.X * rhs.X + lhs.Y * rhs.Y;
+    }
+
+    public void RotateInPlace(Point origin, double angle)
+    {
+        double theta = PolarAngleTo(origin);
+        double l = DistanceTo(origin);
+        X = origin.X + l * Math.Cos(theta + angle);
+        Y = origin.Y + l * Math.Sin(theta + angle);
+    }
+
+    public Point Rotate(Point origin, double angle)
+    {
+        double theta = PolarAngleTo(origin);
+        double l = DistanceTo(origin);
+        double x = origin.X + l * Math.Cos(theta + angle);
+        double y = origin.Y + l * Math.Sin(theta + angle);
+        return new Point(x, y);
+    }
 }

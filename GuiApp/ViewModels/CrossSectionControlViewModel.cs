@@ -26,6 +26,18 @@ public partial class CrossSectionControlViewModel : ViewModelBase
         {
             CrossSectionInputer = new CrossSectionRectangular();
         }
+        else if (value == CrossSectionTypes[3])
+        {
+            CrossSectionInputer = new CrossSectionSuperEllipse();
+        }
+        else if (value == CrossSectionTypes[4])
+        {
+            CrossSectionInputer = new CrossSectionPolygon();
+        }
+        else if (value == CrossSectionTypes[5])
+        {
+            CrossSectionInputer = null;
+        }
     }
 
     [ObservableProperty]
