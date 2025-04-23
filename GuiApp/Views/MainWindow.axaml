@@ -18,13 +18,13 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_文件">
-                <MenuItem Header="_打开" />
+                <!-- <MenuItem Header="_打开" /> -->
                 <MenuItem Header="_导出" Command="{Binding ExportResult}" />
                 <Separator />
                 <MenuItem Header="_退出" Click="Quit_OnClick" />
             </MenuItem>
             <MenuItem Header="_关于">
-                <!-- <MenuItem Header="" /> -->
+                <MenuItem Header="_说明" Command="{Binding ShowCopyright}" />
             </MenuItem>
         </Menu>
 
