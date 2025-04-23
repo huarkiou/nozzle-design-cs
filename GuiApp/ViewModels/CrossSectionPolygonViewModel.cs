@@ -30,7 +30,7 @@ public partial class CrossSectionPolygonViewModel : ViewModelBase, IClosedCurveV
         {
             Title = "选择多边形顶点数据文件",
             AllowMultiple = false,
-            FileTypeFilter = [FilePickerFileTypes.TextPlain],
+            FileTypeFilter = [FilePickerFileTypes.All, FilePickerFileTypes.TextPlain, Models.FilePickerFileTypes.DatUG],
         });
         if (file.Count < 1)
         {
