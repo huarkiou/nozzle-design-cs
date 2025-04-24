@@ -16,7 +16,7 @@ public partial class CrossSectionEllipseViewModel : ViewModelBase, IClosedCurveV
     [ObservableProperty]
     public partial double Alpha { get; set; } = 0;
 
-    public IClosedCurve GetClosedCurve()
+    public IClosedCurve? GetClosedCurve()
     {
         return new Ellipse(X, Y, A, B, double.DegreesToRadians(Alpha));
     }

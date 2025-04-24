@@ -12,7 +12,7 @@ public partial class CrossSectionCircleViewModel : ViewModelBase, IClosedCurveVi
     [ObservableProperty]
     public partial double Radius { get; set; } = 0.4;
 
-    public IClosedCurve GetClosedCurve()
+    public IClosedCurve? GetClosedCurve()
     {
         return new Circle(X, Y, Radius);
     }

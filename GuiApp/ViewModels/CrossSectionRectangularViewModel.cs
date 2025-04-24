@@ -16,7 +16,7 @@ public partial class CrossSectionRectangularViewModel : ViewModelBase, IClosedCu
     [ObservableProperty]
     public partial double Alpha { get; set; } = 0;
 
-    public IClosedCurve GetClosedCurve()
+    public IClosedCurve? GetClosedCurve()
     {
         return new Rectangular(X, Y, Length, Width, double.DegreesToRadians(Alpha));
     }

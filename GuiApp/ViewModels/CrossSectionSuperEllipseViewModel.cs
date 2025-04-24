@@ -18,7 +18,7 @@ public partial class CrossSectionSuperEllipseViewModel : ViewModelBase, IClosedC
     [ObservableProperty]
     public partial double Power { get; set; } = 2;
 
-    public IClosedCurve GetClosedCurve()
+    public IClosedCurve? GetClosedCurve()
     {
         return new SuperEllipse(X, Y, A, B, Power, double.DegreesToRadians(Alpha));
     }
