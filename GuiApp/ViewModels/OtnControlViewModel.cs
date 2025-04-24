@@ -10,6 +10,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using GuiApp.Models;
 using MsBox.Avalonia;
+using ScottPlot;
 using ScottPlot.Avalonia;
 using Tomlyn;
 using Tomlyn.Model;
@@ -215,13 +216,27 @@ public partial class OtnControlViewModel : ViewModelBase
         await process.WaitForExitAsync();
         process.Close();
 
-        var geoResultFile = Path.Combine(_currentDirectory.FullName, OutputPrefix + GeoResultFileName);
+        var fieldResultFile = Path.Combine(_currentDirectory!.FullName, OutputPrefix + FieldResultFileName);
+        if (File.Exists(fieldResultFile))
+        {
+            WeakReferenceMessenger.Default.Send(new BaseFluidFieldMessage(Path.Combine(_currentDirectory.FullName,
+                OutputPrefix + FieldResultFileName)), nameof(OtnControlViewModel));
+        }
+
+        await PreviewOtn(output);
+    }
+
+    private async Task PreviewOtn(string output)
+    {
+        Displayer2D.Plot.Clear();
+        Displayer2D.Plot.XLabel("x/m");
+        Displayer2D.Plot.YLabel("y/m");
+
+        var geoResultFile = Path.Combine(_currentDirectory!.FullName, OutputPrefix + GeoResultFileName);
         List<double> dataX = [];
         List<double> dataY = [];
         if (File.Exists(geoResultFile))
         {
-            WeakReferenceMessenger.Default.Send(new BaseFluidFieldMessage(Path.Combine(_currentDirectory.FullName,
-                OutputPrefix + FieldResultFileName)), nameof(OtnControlViewModel));
             bool isStart = false;
             foreach (string line in File.ReadLines(geoResultFile))
             {
@@ -248,16 +263,27 @@ public partial class OtnControlViewModel : ViewModelBase
                     }
                 }
             }
-
-            Displayer2D.Plot.Add.Scatter(dataX, dataY);
-            Displayer2D.Plot.Add.Line(0, 0, 0, dataY[0]);
-            Displayer2D.Plot.Add.Line(0, 0, dataX[^1], 0);
-            Displayer2D.Plot.Add.Line(dataX[^1], 0, dataX[^1], dataY[^1]);
+            
+            var wallU = Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
+            wallU.LineColor = Color.FromColor(System.Drawing.Color.Black);
+            wallU.LinePattern = LinePattern.Solid;
+            wallU.LineWidth = 2f;
+            var wallL = Displayer2D.Plot.Add.Line(0, 0, 0, dataY[0]);
+            wallL.LineColor = Color.FromColor(System.Drawing.Color.Black);
+            wallL.LinePattern = LinePattern.DenselyDashed;
+            wallL.LineWidth = 1.5f;
+            var wallD = Displayer2D.Plot.Add.Line(0, 0, dataX[^1], 0);
+            wallD.LineColor = Color.FromColor(System.Drawing.Color.Black);
+            wallD.LinePattern = LinePattern.DenselyDashed;
+            wallD.LineWidth = 1.5f;
+            var wallR = Displayer2D.Plot.Add.Line(dataX[^1], 0, dataX[^1], dataY[^1]);
+            wallR.LineColor = Color.FromColor(System.Drawing.Color.Black);
+            wallR.LinePattern = LinePattern.DenselyDashed;
+            wallR.LineWidth = 1.5f;
         }
         else
         {
             await MessageBoxManager.GetMessageBoxStandard("错误", "无法正常计算，程序输出内容如下：\n" + output).ShowAsync();
-            Displayer2D.Plot.Clear();
         }
 
         Displayer2D.Plot.Axes.SquareUnits();

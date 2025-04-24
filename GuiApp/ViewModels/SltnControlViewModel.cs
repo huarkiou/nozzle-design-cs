@@ -13,10 +13,13 @@ using Corelib.Geometry;
 using GuiApp.Models;
 using GuiApp.Views;
 using MsBox.Avalonia;
+using ScottPlot;
 using ScottPlot.Avalonia;
+using SkiaSharp;
 using Tomlyn;
 using Tomlyn.Model;
 using FilePickerFileTypes = GuiApp.Models.FilePickerFileTypes;
+using Point = Corelib.Geometry.Point;
 
 namespace GuiApp.ViewModels;
 
@@ -67,19 +70,33 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
     public void PreviewCrossSection()
     {
         Displayer2D.Plot.Clear();
-        Displayer2D.Plot.Add.Circle(0, 0, 1);
+        Displayer2D.Plot.XLabel("x");
+        Displayer2D.Plot.YLabel("y");
+        var font = SKFontManager.Default.MatchCharacter('汉').FamilyName;
+
+        var unit = Displayer2D.Plot.Add.Circle(0, 0, 1);
+        unit.LineColor = Color.FromColor(System.Drawing.Color.Black);
+        unit.LinePattern = LinePattern.DenselyDashed;
+        unit.LegendText = "单位圆";
 
         (double[] dataX, double[] dataY) = GetXYFromInputer(
             (Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer,
             NumCircumferentialDivision);
-        Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
+        var inletLine = Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
+        inletLine.LineColor = Color.FromColor(System.Drawing.Color.Blue);
+        inletLine.LegendText = "进口";
 
         (dataX, dataY) = GetXYFromInputer((Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer,
             NumCircumferentialDivision);
-        Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
+        var outletLine = Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
+        outletLine.LineColor = Color.FromColor(System.Drawing.Color.Red);
+        outletLine.LegendText = "出口";
 
         Displayer2D.Plot.Axes.SquareUnits();
         Displayer2D.Plot.Axes.AutoScale();
+        var legend = Displayer2D.Plot.ShowLegend();
+        legend.Alignment = Alignment.UpperLeft;
+        legend.FontName = font;
         Displayer2D.Refresh();
         return;
 
