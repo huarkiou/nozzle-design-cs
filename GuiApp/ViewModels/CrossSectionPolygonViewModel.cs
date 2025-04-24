@@ -25,28 +25,21 @@ public partial class CrossSectionPolygonViewModel : ViewModelBase, IClosedCurveV
     [RelayCommand]
     public async Task ChangeVerticesFile()
     {
-        var storageProvider = Ioc.Default.GetService<IStorageProvider>()!;
-        var file = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = "选择多边形顶点数据文件",
-            AllowMultiple = false,
-            FileTypeFilter = [FilePickerFileTypes.All, FilePickerFileTypes.TextPlain, Models.FilePickerFileTypes.DatUG],
-        });
+        var file = await Ioc.Default.GetService<IStorageProvider>()!.OpenFilePickerAsync(
+            new FilePickerOpenOptions
+            {
+                Title = "选择多边形顶点数据文件",
+                AllowMultiple = false,
+                FileTypeFilter =
+                    [FilePickerFileTypes.All, FilePickerFileTypes.TextPlain, Models.FilePickerFileTypes.DatUG],
+            });
         if (file.Count < 1)
         {
             return;
         }
-        else
-        {
-            VerticesFilePath = file[0].Path.AbsolutePath;
-        }
 
-        var lines = File.ReadLines(VerticesFilePath);
-        _vertices = lines.Select(s =>
-        {
-            var r = s.Split(',', ' ', '\t');
-            return new Point(double.Parse(r[0]), double.Parse(r[1]));
-        }).ToArray();
+        VerticesFilePath = file[0].Path.AbsolutePath;
+        _vertices = PointExtensions.LoadTxt(VerticesFilePath);
     }
 
     public IClosedCurve? GetClosedCurve()

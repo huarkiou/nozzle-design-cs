@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Corelib.Geometry;
 using GuiApp.Models;
 using MsBox.Avalonia;
 using ScottPlot;
@@ -233,58 +235,32 @@ public partial class OtnControlViewModel : ViewModelBase
         Displayer2D.Plot.YLabel("y/m");
 
         var geoResultFile = Path.Combine(_currentDirectory!.FullName, OutputPrefix + GeoResultFileName);
-        List<double> dataX = [];
-        List<double> dataY = [];
-        if (File.Exists(geoResultFile))
-        {
-            bool isStart = false;
-            foreach (string line in File.ReadLines(geoResultFile))
-            {
-                if (line.Contains("ROW"))
-                {
-                    if (!isStart)
-                    {
-                        isStart = true;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    var r = line.Split(" ");
-                    if (r.Length == 3)
-                    {
-                        double x = double.Parse(r[0]);
-                        double y = double.Parse(r[1]);
-                        dataX.Add(x);
-                        dataY.Add(y);
-                    }
-                }
-            }
-            
-            var wallU = Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
-            wallU.LineColor = Color.FromColor(System.Drawing.Color.Black);
-            wallU.LinePattern = LinePattern.Solid;
-            wallU.LineWidth = 2f;
-            var wallL = Displayer2D.Plot.Add.Line(0, 0, 0, dataY[0]);
-            wallL.LineColor = Color.FromColor(System.Drawing.Color.Black);
-            wallL.LinePattern = LinePattern.DenselyDashed;
-            wallL.LineWidth = 1.5f;
-            var wallD = Displayer2D.Plot.Add.Line(0, 0, dataX[^1], 0);
-            wallD.LineColor = Color.FromColor(System.Drawing.Color.Black);
-            wallD.LinePattern = LinePattern.DenselyDashed;
-            wallD.LineWidth = 1.5f;
-            var wallR = Displayer2D.Plot.Add.Line(dataX[^1], 0, dataX[^1], dataY[^1]);
-            wallR.LineColor = Color.FromColor(System.Drawing.Color.Black);
-            wallR.LinePattern = LinePattern.DenselyDashed;
-            wallR.LineWidth = 1.5f;
-        }
-        else
+        if (!File.Exists(geoResultFile))
         {
             await MessageBoxManager.GetMessageBoxStandard("错误", "无法正常计算，程序输出内容如下：\n" + output).ShowAsync();
+            return;
         }
+
+        var data = PointExtensions.LoadDat(geoResultFile).First();
+        var dataX = data.Select(p => p.X).ToArray();
+        var dataY = data.Select(p => p.Y).ToArray();
+
+        var wallU = Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
+        wallU.LineColor = Color.FromColor(System.Drawing.Color.Black);
+        wallU.LinePattern = LinePattern.Solid;
+        wallU.LineWidth = 2f;
+        var wallL = Displayer2D.Plot.Add.Line(0, 0, 0, dataY[0]);
+        wallL.LineColor = Color.FromColor(System.Drawing.Color.Black);
+        wallL.LinePattern = LinePattern.DenselyDashed;
+        wallL.LineWidth = 1.5f;
+        var wallD = Displayer2D.Plot.Add.Line(0, 0, dataX[^1], 0);
+        wallD.LineColor = Color.FromColor(System.Drawing.Color.Black);
+        wallD.LinePattern = LinePattern.DenselyDashed;
+        wallD.LineWidth = 1.5f;
+        var wallR = Displayer2D.Plot.Add.Line(dataX[^1], 0, dataX[^1], dataY[^1]);
+        wallR.LineColor = Color.FromColor(System.Drawing.Color.Black);
+        wallR.LinePattern = LinePattern.DenselyDashed;
+        wallR.LineWidth = 1.5f;
 
         Displayer2D.Plot.Axes.SquareUnits();
         Displayer2D.Plot.Axes.AutoScale();

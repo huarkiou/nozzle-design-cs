@@ -100,3 +100,64 @@ public struct Point(double x, double y) : IEquatable<Point>
         return new Point(x, y);
     }
 }
+
+public static class PointExtensions
+{
+    public static Point[] LoadTxt(string fileName)
+    {
+        List<Point> result = [];
+        foreach (string line in File.ReadLines(fileName))
+        {
+            var trimmedLine = line.Trim();
+            if (trimmedLine.StartsWith('#') || trimmedLine.Length == 0)
+            {
+                continue;
+            }
+
+            var r = trimmedLine.Split(' ', ',', '\t');
+            if (r.Length > 1)
+            {
+                double x = double.Parse(r[0]);
+                double y = double.Parse(r[1]);
+                result.Add(new Point(x, y));
+            }
+        }
+
+        return result.ToArray();
+    }
+
+    public static List<Point[]> LoadDat(string fileName)
+    {
+        List<Point[]> ret = [];
+        List<Point> result = [];
+        foreach (string line in File.ReadLines(fileName))
+        {
+            var trimmedLine = line.Trim();
+            if (trimmedLine.StartsWith('#') || trimmedLine.Length == 0)
+            {
+                continue;
+            }
+
+            if (trimmedLine.Contains("ROW"))
+            {
+                if (result.Count > 0)
+                {
+                    ret.Add(result.ToArray());
+                    result = [];
+                }
+            }
+            else
+            {
+                var r = trimmedLine.Split(' ', ',', '\t');
+                if (r.Length > 1)
+                {
+                    double x = double.Parse(r[0]);
+                    double y = double.Parse(r[1]);
+                    result.Add(new Point(x, y));
+                }
+            }
+        }
+
+        return ret;
+    }
+}
