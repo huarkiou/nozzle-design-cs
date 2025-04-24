@@ -14,8 +14,8 @@ public partial class MainWindowViewModel(
     private const int SltnIndex = 1;
     private const string Copyright = """
                                      作者：Huarkiou
-                                     主页：https://github.com/huarkiou
-                                     时间：2025-04-23
+                                     个人主页：https://github.com/huarkiou
+                                     修改时间：2025-04-24
                                      """;
 
     [ObservableProperty]
