@@ -7,7 +7,7 @@ namespace GuiApp.ViewModels;
 
 public partial class CrossSectionControlViewModel : ViewModelBase
 {
-    public static List<string> CrossSectionTypes { get; } = ["圆", "椭圆", "矩形", "超椭圆", "自定义多边形", "自由"];
+    public static List<string> CrossSectionTypes { get; } = ["圆", "椭圆", "矩形", "超椭圆", "自定义多边形", "自由", "NURBS(目前仍未实现)"];
 
     [ObservableProperty]
     public partial string SelectedCrossSectionType { get; set; } = CrossSectionTypes[0];
@@ -37,6 +37,10 @@ public partial class CrossSectionControlViewModel : ViewModelBase
         else if (value == CrossSectionTypes[5])
         {
             CrossSectionInputer = null;
+        }
+        else if (value == CrossSectionTypes[6])
+        {
+            CrossSectionInputer = new CrossSectionNurbs();
         }
     }
 

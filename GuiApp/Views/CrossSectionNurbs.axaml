@@ -1,0 +1,28 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:GuiApp.ViewModels"
+             xmlns:view="clr-namespace:GuiApp.Views"
+             x:DataType="vm:CrossSectionNurbsViewModel"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="450"
+             x:Class="GuiApp.Views.CrossSectionNurbs">
+    <UserControl.DataContext>
+        <vm:CrossSectionNurbsViewModel />
+    </UserControl.DataContext>
+    <StackPanel Orientation="Vertical"
+                VerticalAlignment="Top" HorizontalAlignment="Right"
+                Margin="0,15,15,15" Spacing="5">
+        <view:LabeledInput Label="中心x：" Input="{Binding X, Mode=TwoWay}" />
+        <view:LabeledInput Label="中心y：" Input="{Binding Y, Mode=TwoWay}" />
+        <view:LabeledInput Label="旋转角α：" Input="{Binding Alpha, Mode=TwoWay}" />
+        <Panel>
+            <view:LabeledInput Label="nurbs曲线：" Input="{Binding NurbsFilePath, Mode=TwoWay}" />
+            <Button HorizontalAlignment="Right" Margin="0,0,-20,0" Padding="0"
+                    Background="Transparent" IsTabStop="False"
+                    ToolTip.Tip="选择文件" Command="{Binding ChangeVerticesFile}">
+                <Image HorizontalAlignment="Center" Width="24" Height="24" Source="avares://GuiApp/Assets/file.png" />
+            </Button>
+        </Panel>
+    </StackPanel>
+</UserControl>

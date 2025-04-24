@@ -1,0 +1,22 @@
+﻿# NURBS Curve Description File
+
+[Degree]
+3
+
+[ControlPoints]
+4
+0.0 0.0 0.0
+1.0 2.0 0.0
+2.0 1.5 0.0
+3.0 0.0 0.0
+
+[Weights]
+4
+1.0
+1.0
+1.0
+1.0
+
+[KnotVector]
+8
+0.0 0.0 0.0 1.0 2.0 3.0 3.0 3.0
