@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -19,8 +18,40 @@ public partial class CrossSectionPolygonViewModel : ViewModelBase, IClosedCurveV
     public partial string? VerticesFilePath { get; set; } = null;
     [ObservableProperty]
     public partial double Alpha { get; set; } = 0;
+    [ObservableProperty]
+    public partial ObservableCollection<Point> Vertices { get; set; } = [];
 
     private Point[]? _vertices = null;
+
+    partial void OnVerticesFilePathChanged(string? value)
+    {
+        Vertices.Clear();
+        if (value is null)
+        {
+            return;
+        }
+
+        try
+        {
+            _vertices = PointExtensions.LoadTxt(value);
+        }
+        catch (System.Exception)
+        {
+            _vertices = null;
+            return;
+        }
+
+        if (_vertices.Length < 3)
+        {
+            _vertices = null;
+            return;
+        }
+
+        foreach (var p in _vertices)
+        {
+            Vertices.Add(p);
+        }
+    }
 
     [RelayCommand]
     public async Task ChangeVerticesFile()
@@ -33,18 +64,17 @@ public partial class CrossSectionPolygonViewModel : ViewModelBase, IClosedCurveV
                 FileTypeFilter =
                     [FilePickerFileTypes.All, FilePickerFileTypes.TextPlain, Models.FilePickerFileTypes.DatUG],
             });
-        if (file.Count < 1)
+        if (file.Count < 1 || VerticesFilePath == file[0].Path.AbsolutePath)
         {
             return;
         }
 
         VerticesFilePath = file[0].Path.AbsolutePath;
-        _vertices = PointExtensions.LoadTxt(VerticesFilePath);
     }
 
     public IClosedCurve? GetClosedCurve()
     {
-        if (_vertices is null)
+        if (_vertices is null || _vertices.Length < 3)
         {
             return null;
         }

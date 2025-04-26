@@ -24,5 +24,17 @@
                 <Image HorizontalAlignment="Center" Width="24" Height="24" Source="avares://GuiApp/Assets/file.png" />
             </Button>
         </Panel>
+        <DataGrid ItemsSource="{Binding Vertices}"
+                  IsReadOnly="True"
+                  CanUserReorderColumns="False"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="False"
+                  HorizontalAlignment="Center"
+                  GridLinesVisibility="All">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="x" Binding="{Binding X}" />
+                <DataGridTextColumn Header="y" Binding="{Binding Y}" />
+            </DataGrid.Columns>
+        </DataGrid>
     </StackPanel>
 </UserControl>
