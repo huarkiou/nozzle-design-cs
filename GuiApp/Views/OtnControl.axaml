@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:GuiApp.ViewModels"
              xmlns:view="clr-namespace:GuiApp.Views"
+             xmlns:viewModels="clr-namespace:GuiApp.ViewModels"
              x:DataType="vm:OtnControlViewModel"
              mc:Ignorable="d" d:DesignWidth="1072" d:DesignHeight="603"
              x:Class="GuiApp.Views.OtnControl">
@@ -14,7 +15,8 @@
     <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
         <DockPanel Grid.Column="0">
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
-                <CheckBox Name="IsAdvanced" Content="进阶选项" IsChecked="False" Foreground="Blue" Width="123" Height="32" />
+                <CheckBox Name="IsAdvanced" Content="进阶选项" IsChecked="False"
+                          Foreground="Blue" Width="123" Height="32" IsTabStop="False" />
                 <Button Name="OtnRun" Margin="10" Width="180" Height="32"
                         Content="开始计算" Command="{Binding RunOtn}"
                         IsEnabled="{Binding CanRunOtn, Mode=TwoWay}"
@@ -26,43 +28,60 @@
                             VerticalAlignment="Top" HorizontalAlignment="Center"
                             Margin="0,15,15,15" Spacing="5">
                     <view:BinarySelector Name="IsAxisymmetric" LabelTrue="轴对称" LabelFalse="二维"
-                                         IsTrue="{Binding IsAxisymmetric, Mode=TwoWay}" />
+                                         IsTrue="{Binding IsAxisymmetric, Mode=TwoWay}"
+                                         ToolTip.Tip="{Binding IsAxisymmetricToolTip}" />
                     <view:LabeledInput Label="深度/宽度：" Input="{Binding Width}"
-                                       IsVisible="{Binding !#IsAxisymmetric.IsTrue, Mode=TwoWay}" />
-                    <view:LabeledInput Label="进口高度：" Input="{Binding InletHeight, Mode=TwoWay}" />
-                    <view:LabeledInput Label="目标喷管长度：" Input="{Binding Length, Mode=TwoWay}" />
-                    <view:LabeledInput Label="目标出口高度：" Input="{Binding TargetOutletHeight, Mode=TwoWay}" />
+                                       IsVisible="{Binding !#IsAxisymmetric.IsTrue, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding WidthToolTip}" />
+                    <view:LabeledInput Label="进口高度：" Input="{Binding InletHeight, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding InletHeightToolTip}" />
+                    <view:LabeledInput Label="目标喷管长度：" Input="{Binding Length, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding LengthToolTip}" />
+                    <view:LabeledInput Label="目标出口高度：" Input="{Binding TargetOutletHeight, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding TargetOutletHeightToolTip}" />
                     <Separator />
-                    <view:LabeledInput Label="平均比热比：" Input="{Binding Gamma, Mode=TwoWay}" />
-                    <view:LabeledInput Label="气体常数：" Input="{Binding Rg, Mode=TwoWay}" />
-                    <view:LabeledInput Label="进口总压：" Input="{Binding TotalPressure, Mode=TwoWay}" />
-                    <view:LabeledInput Label="进口总温：" Input="{Binding TotalTemperature, Mode=TwoWay}" />
-                    <view:LabeledInput Label="进口马赫数：" Input="{Binding MachNumber, Mode=TwoWay}" />
+                    <view:LabeledInput Label="平均比热比：" Input="{Binding Gamma, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding GammaToolTip}" />
+                    <view:LabeledInput Label="气体常数：" Input="{Binding Rg, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding RgToopTip}" />
+                    <view:LabeledInput Label="进口总压：" Input="{Binding TotalPressure, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding TotalPressureToopTip}" />
+                    <view:LabeledInput Label="进口总温：" Input="{Binding TotalTemperature, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding TotalTemperatureToopTip}" />
+                    <view:LabeledInput Label="进口马赫数：" Input="{Binding MachNumber, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding MachNumberToopTip}" />
                     <view:LabeledInput Label="进口气流角：" Input="{Binding InletTheta, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding InletThetaToopTip}"
                                        IsVisible="{Binding #IsAdvanced.IsChecked}"
                                        Foreground="{Binding #IsAdvanced.Foreground}" />
-                    <view:LabeledInput Label="出口背压：" Input="{Binding PressureAmbient, Mode=TwoWay}" />
+                    <view:LabeledInput Label="出口背压：" Input="{Binding PressureAmbient, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding PressureAmbientToopTip}" />
                     <Separator />
-                    <view:LabeledInput Label="过渡圆弧半径：" Input="{Binding RadiusThroat, Mode=TwoWay}" />
-                    <view:LabeledInput Label="初始膨胀角：" Input="{Binding InitialExpansionAngle, Mode=TwoWay}" />
+                    <view:LabeledInput Label="过渡圆弧半径：" Input="{Binding RadiusThroat, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding RadiusThroatToopTip}" />
+                    <view:LabeledInput Label="初始膨胀角：" Input="{Binding InitialExpansionAngle, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding InitialExpansionAngleToopTip}" />
                     <Separator IsVisible="{Binding #IsAdvanced.IsChecked}" />
                     <view:LabeledInput Label="容许误差：" Input="{Binding Epsilon, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding EpsilonToolTip}"
                                        IsVisible="{Binding #IsAdvanced.IsChecked}"
                                        Foreground="{Binding #IsAdvanced.Foreground}" />
                     <view:LabeledInput Label="初始网格点数：" Input="{Binding NumInletDivision, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding NumInletDivisionToolTip}"
                                        IsVisible="{Binding #IsAdvanced.IsChecked}"
                                        Foreground="{Binding #IsAdvanced.Foreground}" />
                     <view:LabeledInput Label="最大校正步数：" Input="{Binding NumCorrectionMax, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding NumCorrectionMaxToolTip}"
                                        IsVisible="{Binding #IsAdvanced.IsChecked}"
                                        Foreground="{Binding #IsAdvanced.Foreground}" />
                     <view:BinarySelector Name="Irrotational" LabelTrue="无旋" LabelFalse="有旋"
                                          IsTrue="{Binding Irrotational, Mode=TwoWay}"
+                                         ToolTip.Tip="{Binding IsIrrotationalToolTip}"
                                          IsVisible="{Binding #IsAdvanced.IsChecked}"
-                                         Foreground="{Binding #IsAdvanced.Foreground}"
-                                         ToolTip.Tip="除测试用途以外不应使用此选项，由于不知什么时候引入的BUG导致采用有旋特征线法大概率无法正常计算" />
+                                         Foreground="{Binding #IsAdvanced.Foreground}" />
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>
-        <ContentControl Grid.Column="1" Content="{Binding Displayer2D, Mode=OneTime}" />
+        <ContentControl Grid.Column="1" Content="{Binding Displayer2D, Mode=OneTime}" IsTabStop="False" />
     </Grid>
 </UserControl>

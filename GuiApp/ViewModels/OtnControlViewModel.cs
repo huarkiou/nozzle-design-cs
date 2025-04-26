@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -31,61 +30,84 @@ public partial class OtnControlViewModel : ViewModelBase
     // MOC Control
     [ObservableProperty]
     public partial bool Irrotational { get; set; } = true;
+    public static string IsIrrotationalToolTip => "无旋特征线法/有旋特征线法\n注意：除测试用途以外均不应使用此选项，由于不知什么时候引入的BUG导致采用有旋特征线法大概率无法正常计算";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(InletHeightToolTip))]
+    [NotifyPropertyChangedFor(nameof(TargetOutletHeightToolTip))]
     public partial bool IsAxisymmetric { get; set; } = true;
+    public static string IsAxisymmetricToolTip => "轴对称喷管/二元喷管";
 
     [ObservableProperty]
     public partial double Epsilon { get; set; } = 1e-6;
+    public static string EpsilonToolTip => "允许误差\n注意：不应大于1e-4，一般建议取在范围1e-4至1e-8之间";
 
     [ObservableProperty]
     public partial int NumCorrectionMax { get; set; } = 40;
+    public static string NumCorrectionMaxToolTip => "欧拉预估校正迭代过程的最大校正次数";
 
     [ObservableProperty]
     public partial int NumInletDivision { get; set; } = 101;
+    public static string NumInletDivisionToolTip => "入口边界初始网格点数\n注意：若计算不收敛可尝试增大此参数";
 
     // Geometry
+    private const string UnitMeterToolTip = "\n单位：米/m";
     [ObservableProperty]
     public partial double InletHeight { get; set; } = 1.0;
+    public string InletHeightToolTip => (IsAxisymmetric ? "喷管进口半径" : "喷管进口高度") + UnitMeterToolTip;
 
     [ObservableProperty]
     public partial double Length { get; set; } = 4.0;
+    public static string LengthToolTip => "目标喷管轴向长度" + UnitMeterToolTip;
 
     [ObservableProperty]
     public partial double Width { get; set; } = 1.0;
+    public static string WidthToolTip => "喷管宽度、深度、z方向长度" + UnitMeterToolTip;
 
     [ObservableProperty]
     public partial double TargetOutletHeight { get; set; } = double.NaN;
+    public string TargetOutletHeightToolTip => (IsAxisymmetric ? "喷管目标出口半径" : "喷管目标出口高度")
+                                               + UnitMeterToolTip + "\n注意：若以最大推力为目标，对出口高度没有约束则应设置为NaN";
 
     // Inlet
     [ObservableProperty]
     public partial double Gamma { get; set; } = 1.4;
+    public static string GammaToolTip => "气流平均比热比";
 
     [ObservableProperty]
     public partial double Rg { get; set; } = 287.042;
+    public static string RgToopTip => "气流气体常数\n单位：J/(mol·K)";
 
     [ObservableProperty]
     public partial double TotalPressure { get; set; } = 800000.0;
+    public static string TotalPressureToopTip => "进口气流平均总压\n单位：Pa";
 
     [ObservableProperty]
     public partial double TotalTemperature { get; set; } = 2000.0;
+    public static string TotalTemperatureToopTip => "进口气流平均总温\n单位：K";
 
     [ObservableProperty]
     public partial double MachNumber { get; set; } = 1.20;
+    public static string MachNumberToopTip => "进口气流平均马赫数\n注意：应大于等于1，其中恰好等于1时的处理方式与其他情况不一致";
 
     [ObservableProperty]
     public partial double InletTheta { get; set; } = 0.0;
+    public static string InletThetaToopTip => "来流气流方向角\n单位：°\n注意：不应使用此参数";
 
     // Throat
     [ObservableProperty]
     public partial double RadiusThroat { get; set; } = 0.0;
+    public static string RadiusThroatToopTip => "进口上壁面处过渡圆弧半径" + UnitMeterToolTip;
 
     [ObservableProperty]
     public partial double InitialExpansionAngle { get; set; } = double.NaN;
+    public static string InitialExpansionAngleToopTip =>
+        "初始膨胀角\n单位：°\n注意：若为负数或NaN则由程序自动迭代计算选取，这也会导致目标出口高度失效";
 
     // Outlet
     [ObservableProperty]
     public partial double PressureAmbient { get; set; } = 7000.0;
+    public static string PressureAmbientToopTip => "设计出口背压\n单位：Pa";
 
     // View
     [ObservableProperty]
