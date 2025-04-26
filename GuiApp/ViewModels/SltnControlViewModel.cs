@@ -41,19 +41,30 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
     // Control
     [ObservableProperty]
     public partial int NumCircumferentialDivision { get; set; } = 66;
+    public static string NumCircumferentialDivisionToolTip => "周向离散点数\n即每个横截面轮廓上取几个点";
 
     [ObservableProperty]
     public partial int NumAxialDivision { get; set; } = 111;
+    public static string NumAxialDivisionToolTip => "轴向离散点数\n即长度方向取几个点";
 
     [ObservableProperty]
     public partial bool IsMonotonic { get; set; } = false;
+    public static string IsMonotonicToolTip => "型面融合过渡时不单调变化的区域是否抹平\n注意：一般不建议使用，效果不好";
 
     [ObservableProperty]
     public partial double WeightFunctionParameter { get; set; } = 0;
+    public static string WeightFunctionParameterToolTip =>
+        """
+        型面融合过渡权函数f(x)的控制参数a
+         a = 0 为 f(x) = x
+         a > 0 为 f(x) = arctan((2 * x - 1) * a) / arctan(a) / 2. + 0.5
+         a < 0 为 f(x) = (tan(arctan(a) * (2 * x - 1)) / a + 1) / 2
+        """;
 
     // Base Fluid Field
     [ObservableProperty]
     public partial bool IsAxisymmetric { get; set; } = true;
+    public static string IsAxisymmetricToolTip => "基准流场类型：二维平面or轴对称";
 
     [ObservableProperty]
     public partial string? FieldDataSource { get; set; } = null;

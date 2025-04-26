@@ -31,19 +31,30 @@
                       VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
                 <Expander.Header>进阶控制参数</Expander.Header>
                 <StackPanel Orientation="Vertical">
-                    <view:BinarySelector LabelTrue="轴对称" LabelFalse="二维" ToolTip.Tip="基准流场类型"
-                                         IsTrue="{Binding IsAxisymmetric, Mode=TwoWay}" />
-                    <view:BinarySelector LabelTrue="不强制单调" LabelFalse="强制单调" ToolTip.Tip="是否强制抹平型面变化"
-                                         IsTrue="{Binding !IsMonotonic, Mode=TwoWay}" />
+                    <view:BinarySelector LabelTrue="轴对称" LabelFalse="二维"
+                                         IsTrue="{Binding IsAxisymmetric, Mode=TwoWay}"
+                                         ToolTip.Tip="{Binding IsAxisymmetricToolTip}" />
+                    <view:BinarySelector LabelTrue="不强制单调" LabelFalse="强制单调"
+                                         IsTrue="{Binding !IsMonotonic, Mode=TwoWay}"
+                                         ToolTip.Tip="{Binding IsMonotonicToolTip}" />
                     <view:LabeledSlider Label="轴向点数："
                                         Value="{Binding NumAxialDivision,Mode=TwoWay, StringFormat=\{0:0\}}"
-                                        Minimum="2" Maximum="666" />
+                                        Minimum="2" Maximum="666"
+                                        ToolTip.Tip="{Binding NumAxialDivisionToolTip}" />
                     <view:LabeledSlider Label="周向点数："
                                         Value="{Binding NumCircumferentialDivision,Mode=TwoWay, StringFormat=\{0:0\}}"
-                                        Minimum="3" Maximum="666" />
-                    <view:LabeledSlider Label="权函数控制参数：" ToolTip.Tip="值为0时表示线性权函数；值趋于正无穷则顺流向权重大，反之亦然"
+                                        Minimum="3" Maximum="666"
+                                        ToolTip.Tip="{Binding NumCircumferentialDivisionToolTip}" />
+                    <view:LabeledSlider Label="权函数控制参数："
                                         Value="{Binding WeightFunctionParameter,Mode=TwoWay, StringFormat=\{0:0.00\}}"
-                                        Minimum="-1000" Maximum="1000" />
+                                        Minimum="-1000" Maximum="1000">
+                        <ToolTip.Tip>
+                            <StackPanel>
+                                <TextBlock Text="{Binding WeightFunctionParameterToolTip}" />
+                                <Image Source="avares://GuiApp/Assets/ToolTip_WeightFunctionPlot.png" />
+                            </StackPanel>
+                        </ToolTip.Tip>
+                    </view:LabeledSlider>
                 </StackPanel>
             </Expander>
             <ScrollViewer DockPanel.Dock="Top">
