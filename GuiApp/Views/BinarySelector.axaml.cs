@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 
 namespace GuiApp.Views;
 
@@ -30,7 +31,7 @@ public partial class BinarySelector : UserControl
     }
 
     public static readonly StyledProperty<bool> IsTrueProperty =
-        AvaloniaProperty.Register<BinarySelector, bool>(nameof(IsTrue));
+        AvaloniaProperty.Register<BinarySelector, bool>(nameof(IsTrue), true, false, BindingMode.TwoWay);
 
     public bool IsTrue
     {

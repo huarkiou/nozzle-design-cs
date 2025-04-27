@@ -15,4 +15,8 @@ public static class FilePickerFileTypes
         Patterns = ["*.obj"],
         MimeTypes = ["text/*"]
     };
+
+    public static FilePickerFileType TextPlain => Avalonia.Platform.Storage.FilePickerFileTypes.TextPlain;
+
+    public static FilePickerFileType All => Avalonia.Platform.Storage.FilePickerFileTypes.All;
 }

@@ -1,44 +1,77 @@
 ﻿using System.Collections.Generic;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using GuiApp.Models;
 using GuiApp.Views;
 
 namespace GuiApp.ViewModels;
 
-public partial class CrossSectionControlViewModel : ViewModelBase
+public partial class CrossSectionControlViewModel : ViewModelBase, IRecipient<NozzleSizeValueChangedMessages>
 {
-    public static List<string> CrossSectionTypes { get; } = ["圆", "椭圆", "矩形", "超椭圆", "自定义多边形", "自由", "NURBS(目前仍未实现)"];
+    public CrossSectionControlViewModel()
+    {
+        WeakReferenceMessenger.Default.Register<NozzleSizeValueChangedMessages, string>(this,
+            nameof(OtnControlViewModel));
+    }
+
+    public void Receive(NozzleSizeValueChangedMessages valueChangedMessage)
+    {
+        (double hInlet, double hOutlet) = valueChangedMessage.Value;
+        HNorm = Position switch
+        {
+            CrossSectionPosition.Inlet => hInlet,
+            CrossSectionPosition.Outlet => hOutlet,
+            _ => HNorm
+        };
+    }
+
+    private double HNorm
+    {
+        get;
+        set
+        {
+            if (CrossSectionInputer is not null)
+                (CrossSectionInputer.DataContext as ClosedCurveViewModel)!.HNorm = value;
+            field = value;
+        }
+    } = double.NaN;
 
     [ObservableProperty]
-    public partial string SelectedCrossSectionType { get; set; } = CrossSectionTypes[0];
+    public partial CrossSectionPosition Position { get; set; }
+
+    public static List<string> CrossSectionShapes { get; } = ["圆", "椭圆", "矩形", "超椭圆", "自定义多边形", "自由", "NURBS(目前仍未实现)"];
+
+    [ObservableProperty]
+    public partial string SelectedCrossSectionType { get; set; } = CrossSectionShapes[0];
 
     partial void OnSelectedCrossSectionTypeChanged(string value)
     {
-        if (value == CrossSectionTypes[0])
+        if (value == CrossSectionShapes[0])
         {
             CrossSectionInputer = new CrossSectionCircle();
         }
-        else if (value == CrossSectionTypes[1])
+        else if (value == CrossSectionShapes[1])
         {
             CrossSectionInputer = new CrossSectionEllipse();
         }
-        else if (value == CrossSectionTypes[2])
+        else if (value == CrossSectionShapes[2])
         {
             CrossSectionInputer = new CrossSectionRectangular();
         }
-        else if (value == CrossSectionTypes[3])
+        else if (value == CrossSectionShapes[3])
         {
             CrossSectionInputer = new CrossSectionSuperEllipse();
         }
-        else if (value == CrossSectionTypes[4])
+        else if (value == CrossSectionShapes[4])
         {
             CrossSectionInputer = new CrossSectionPolygon();
         }
-        else if (value == CrossSectionTypes[5])
+        else if (value == CrossSectionShapes[5])
         {
             CrossSectionInputer = null;
         }
-        else if (value == CrossSectionTypes[6])
+        else if (value == CrossSectionShapes[6])
         {
             CrossSectionInputer = new CrossSectionNurbs();
         }
@@ -46,4 +79,10 @@ public partial class CrossSectionControlViewModel : ViewModelBase
 
     [ObservableProperty]
     public partial UserControl? CrossSectionInputer { get; set; } = new CrossSectionCircle();
+
+    partial void OnCrossSectionInputerChanged(UserControl? value)
+    {
+        if (value is not null)
+            (value.DataContext as ClosedCurveViewModel)!.HNorm = HNorm;
+    }
 }

@@ -3,7 +3,7 @@ using Corelib.Geometry;
 
 namespace GuiApp.ViewModels;
 
-public partial class CrossSectionSuperEllipseViewModel : ViewModelBase, IClosedCurveViewModel
+public partial class CrossSectionSuperEllipseViewModel : ClosedCurveViewModel
 {
     [ObservableProperty]
     public partial double X { get; set; } = 0;
@@ -18,12 +18,12 @@ public partial class CrossSectionSuperEllipseViewModel : ViewModelBase, IClosedC
     [ObservableProperty]
     public partial double Power { get; set; } = 2;
 
-    public IClosedCurve? GetClosedCurve()
+    public override IClosedCurve? GetClosedCurve()
     {
         return new SuperEllipse(X, Y, A, B, Power, double.DegreesToRadians(Alpha));
     }
 
-    public string GetTomlString()
+    public override string GetTomlString()
     {
         const string ret = """
                            # 是否用基准流场的进/出口截面高度对坐标进行标准化到单位圆内(若为false，则后续长度单位均为m，默认为true)
@@ -42,11 +42,44 @@ public partial class CrossSectionSuperEllipseViewModel : ViewModelBase, IClosedC
                            n = 2
                            """;
         var model = Tomlyn.Toml.ToModel(ret);
+        model["normalized"] = IsNormalized;
         model["center"] = (double[]) [X, Y];
         model["a"] = A;
         model["b"] = B;
         model["alpha"] = Alpha;
         model["n"] = Power;
         return Tomlyn.Toml.FromModel(model);
+    }
+
+    public override IClosedCurve? GetRawClosedCurve()
+    {
+        return IsNormalized
+            ? new SuperEllipse(X * HNorm, Y * HNorm, A * HNorm, B * HNorm, Power, double.DegreesToRadians(Alpha))
+            : new SuperEllipse(X, Y, A, B, Power, double.DegreesToRadians(Alpha));
+    }
+
+    public override IClosedCurve? GetNormalizedClosedCurve()
+    {
+        return IsNormalized
+            ? new SuperEllipse(X, Y, A, B, Power, double.DegreesToRadians(Alpha))
+            : new SuperEllipse(X / HNorm, Y / HNorm, A / HNorm, B / HNorm, Power, double.DegreesToRadians(Alpha));
+    }
+
+    protected override void OnNormalizedStateChanged()
+    {
+        if (IsNormalized)
+        {
+            X /= HNorm;
+            Y /= HNorm;
+            A /= HNorm;
+            B /= HNorm;
+        }
+        else
+        {
+            X *= HNorm;
+            Y *= HNorm;
+            A *= HNorm;
+            B *= HNorm;
+        }
     }
 }

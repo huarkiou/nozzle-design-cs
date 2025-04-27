@@ -243,7 +243,7 @@ public partial class OtnControlViewModel : ViewModelBase
         var fieldResultFile = Path.Combine(_currentDirectory!.FullName, OutputPrefix + FieldResultFileName);
         if (File.Exists(fieldResultFile))
         {
-            WeakReferenceMessenger.Default.Send(new BaseFluidFieldMessage(Path.Combine(_currentDirectory.FullName,
+            WeakReferenceMessenger.Default.Send(new BaseFieldValueChangedMessages(Path.Combine(_currentDirectory.FullName,
                 OutputPrefix + FieldResultFileName)), nameof(OtnControlViewModel));
         }
 
@@ -287,6 +287,9 @@ public partial class OtnControlViewModel : ViewModelBase
         Displayer2D.Plot.Axes.SquareUnits();
         Displayer2D.Plot.Axes.AutoScale();
         Displayer2D.Refresh();
+
+        WeakReferenceMessenger.Default.Send(new NozzleSizeValueChangedMessages(dataY[0] - 0, dataY[^1] - 0),
+            nameof(OtnControlViewModel));
     }
 
     public async Task ExportResultAsync()

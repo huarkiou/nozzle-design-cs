@@ -8,9 +8,11 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using Corelib.Geometry;
 
+#pragma warning disable CS0414 // 字段已被赋值，但它的值从未被使用
+
 namespace GuiApp.ViewModels;
 
-public partial class CrossSectionNurbsViewModel : ViewModelBase, IClosedCurveViewModel
+public partial class CrossSectionNurbsViewModel : ClosedCurveViewModel
 {
     [ObservableProperty]
     public partial double X { get; set; } = double.NaN;
@@ -62,7 +64,7 @@ public partial class CrossSectionNurbsViewModel : ViewModelBase, IClosedCurveVie
         }
     }
 
-    public IClosedCurve? GetClosedCurve()
+    public override IClosedCurve? GetClosedCurve()
     {
         if (_controlPoints is null)
         {
@@ -72,7 +74,7 @@ public partial class CrossSectionNurbsViewModel : ViewModelBase, IClosedCurveVie
         throw new NotImplementedException();
     }
 
-    public string GetTomlString()
+    public override string GetTomlString()
     {
         const string ret = """
                            # 是否用基准流场的进/出口截面高度对坐标进行标准化到单位圆内(若为false，则后续长度单位均为m，默认为true)
@@ -87,6 +89,7 @@ public partial class CrossSectionNurbsViewModel : ViewModelBase, IClosedCurveVie
                            center = [0, 0.2]
                            """;
         var model = Tomlyn.Toml.ToModel(ret);
+        model["normalized"] = IsNormalized;
         if (double.IsFinite(X) && double.IsFinite(Y))
         {
             model["center"] = (double[]) [X, Y];
@@ -95,5 +98,31 @@ public partial class CrossSectionNurbsViewModel : ViewModelBase, IClosedCurveVie
         model["datasource"] = NurbsFilePath ?? string.Empty;
         model["alpha"] = Alpha;
         return Tomlyn.Toml.FromModel(model);
+    }
+
+    public override IClosedCurve? GetRawClosedCurve()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IClosedCurve? GetNormalizedClosedCurve()
+    {
+        throw new NotImplementedException();
+    }
+
+    protected override void OnNormalizedStateChanged()
+    {
+        if (IsNormalized)
+        {
+            X /= HNorm;
+            Y /= HNorm;
+        }
+        else
+        {
+            X *= HNorm;
+            Y *= HNorm;
+        }
+
+        throw new NotImplementedException();
     }
 }

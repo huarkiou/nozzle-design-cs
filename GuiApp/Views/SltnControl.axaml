@@ -30,7 +30,7 @@
                       VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
                       VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
                 <Expander.Header>进阶控制参数</Expander.Header>
-                <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                     <view:BinarySelector LabelTrue="轴对称" LabelFalse="二维"
                                          IsTrue="{Binding IsAxisymmetric, Mode=TwoWay}"
                                          ToolTip.Tip="{Binding IsAxisymmetricToolTip}" />
@@ -45,7 +45,7 @@
                                         Value="{Binding NumCircumferentialDivision,Mode=TwoWay, StringFormat=\{0:0\}}"
                                         Minimum="3" Maximum="666"
                                         ToolTip.Tip="{Binding NumCircumferentialDivisionToolTip}" />
-                    <view:LabeledSlider Label="权函数控制参数："
+                    <view:LabeledSlider Label="权函数控制："
                                         Value="{Binding WeightFunctionParameter,Mode=TwoWay, StringFormat=\{0:0.00\}}"
                                         Minimum="-1000" Maximum="1000">
                         <ToolTip.Tip>
@@ -55,6 +55,15 @@
                             </StackPanel>
                         </ToolTip.Tip>
                     </view:LabeledSlider>
+                    <Panel ToolTip.Tip="{Binding FieldDataSourceToolTip}">
+                        <view:LabeledInput Label="基准流场文件：" Input="{Binding FieldDataSource, Mode=TwoWay}" />
+                        <Button HorizontalAlignment="Right" Margin="0,0,-20,0" Padding="0"
+                                Background="Transparent" IsTabStop="False"
+                                ToolTip.Tip="选择文件" Command="{Binding ChangeVerticesFile}">
+                            <Image HorizontalAlignment="Center" Width="24" Height="24"
+                                   Source="avares://GuiApp/Assets/file.png" />
+                        </Button>
+                    </Panel>
                 </StackPanel>
             </Expander>
             <ScrollViewer DockPanel.Dock="Top">

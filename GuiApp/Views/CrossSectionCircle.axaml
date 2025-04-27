@@ -13,8 +13,14 @@
     <StackPanel Orientation="Vertical"
                 VerticalAlignment="Top" HorizontalAlignment="Right"
                 Margin="0,15,15,15" Spacing="5">
-        <view:LabeledInput Label="圆心x：" Input="{Binding X, Mode=TwoWay}" />
-        <view:LabeledInput Label="圆心y：" Input="{Binding Y, Mode=TwoWay}" />
-        <view:LabeledInput Label="半径R：" Input="{Binding Radius, Mode=TwoWay}" />
+        <view:BinarySelector LabelTrue="归一化" LabelFalse="原始值"
+                             IsTrue="{Binding IsNormalized, Mode=TwoWay}"
+                             ToolTip.Tip="{Binding IsNormalizedToolTip}" />
+        <view:LabeledInput Label="圆心x：" Input="{Binding X, Mode=TwoWay}"
+                           ToolTip.Tip="{Binding XToolTip}" />
+        <view:LabeledInput Label="圆心y：" Input="{Binding Y, Mode=TwoWay}"
+                           ToolTip.Tip="{Binding YToolTip}" />
+        <view:LabeledInput Label="半径R：" Input="{Binding Radius, Mode=TwoWay}"
+                           ToolTip.Tip="{Binding RadiusToolTip}" />
     </StackPanel>
 </UserControl>

@@ -4,14 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="50"
              x:Class="GuiApp.Views.LabeledSlider">
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"
                 Margin="5,0,5,0">
         <TextBlock Name="TextBlockLabel"
                    HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0"
                    Text="数值：" />
         <Slider Name="SliderValue" Value="0"
                 Minimum="0" Maximum="100"
-                Width="180"
+                Width="115"
                 ValueChanged="SliderValue_OnValueChanged" />
         <TextBox Name="TextBoxValue"
                  HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,5,0"

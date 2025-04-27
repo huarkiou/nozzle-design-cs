@@ -8,7 +8,7 @@ using Corelib.Geometry;
 
 namespace GuiApp.ViewModels;
 
-public partial class CrossSectionPolygonViewModel : ViewModelBase, IClosedCurveViewModel
+public partial class CrossSectionPolygonViewModel : ClosedCurveViewModel
 {
     [ObservableProperty]
     public partial double X { get; set; } = double.NaN;
@@ -72,7 +72,7 @@ public partial class CrossSectionPolygonViewModel : ViewModelBase, IClosedCurveV
         VerticesFilePath = file[0].Path.AbsolutePath;
     }
 
-    public IClosedCurve? GetClosedCurve()
+    public override IClosedCurve? GetClosedCurve()
     {
         if (_vertices is null || _vertices.Length < 3)
         {
@@ -82,7 +82,7 @@ public partial class CrossSectionPolygonViewModel : ViewModelBase, IClosedCurveV
         return new Polygon(X, Y, _vertices, double.DegreesToRadians(Alpha));
     }
 
-    public string GetTomlString()
+    public override string GetTomlString()
     {
         const string ret = """
                            # 是否用基准流场的进/出口截面高度对坐标进行标准化到单位圆内(若为false，则后续长度单位均为m，默认为true)
@@ -97,6 +97,7 @@ public partial class CrossSectionPolygonViewModel : ViewModelBase, IClosedCurveV
                            center = [0, 0.25]
                            """;
         var model = Tomlyn.Toml.ToModel(ret);
+        model["normalized"] = IsNormalized;
         if (double.IsFinite(X) && double.IsFinite(Y))
         {
             model["center"] = (double[]) [X, Y];
@@ -105,5 +106,43 @@ public partial class CrossSectionPolygonViewModel : ViewModelBase, IClosedCurveV
         model["datasource"] = VerticesFilePath ?? string.Empty;
         model["alpha"] = Alpha;
         return Tomlyn.Toml.FromModel(model);
+    }
+
+    public override IClosedCurve? GetRawClosedCurve()
+    {
+        if (_vertices is null || _vertices.Length < 3)
+        {
+            return null;
+        }
+
+        return IsNormalized
+            ? new Polygon(X * HNorm, Y * HNorm, _vertices, double.DegreesToRadians(Alpha))
+            : new Polygon(X, Y, _vertices, double.DegreesToRadians(Alpha));
+    }
+
+    public override IClosedCurve? GetNormalizedClosedCurve()
+    {
+        if (_vertices is null || _vertices.Length < 3)
+        {
+            return null;
+        }
+
+        return IsNormalized
+            ? new Polygon(X, Y, _vertices, double.DegreesToRadians(Alpha))
+            : new Polygon(X / HNorm, Y / HNorm, _vertices, double.DegreesToRadians(Alpha));
+    }
+
+    protected override void OnNormalizedStateChanged()
+    {
+        if (IsNormalized)
+        {
+            X /= HNorm;
+            Y /= HNorm;
+        }
+        else
+        {
+            X *= HNorm;
+            Y *= HNorm;
+        }
     }
 }

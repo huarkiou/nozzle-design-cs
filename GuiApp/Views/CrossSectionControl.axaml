@@ -6,9 +6,9 @@
              x:DataType="vm:CrossSectionControlViewModel"
              mc:Ignorable="d" d:DesignWidth="269" d:DesignHeight="450"
              x:Class="GuiApp.Views.CrossSectionControl">
-    <UserControl.DataContext>
+    <Design.DataContext>
         <vm:CrossSectionControlViewModel />
-    </UserControl.DataContext>
+    </Design.DataContext>
     <StackPanel Orientation="Vertical"
                 VerticalAlignment="Top" HorizontalAlignment="Center"
                 Margin="0,15,15,15" Spacing="5">
@@ -20,7 +20,7 @@
                       HorizontalAlignment="Center" VerticalAlignment="Center"
                       HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                       MinWidth="180" MaxWidth="180"
-                      ItemsSource="{Binding CrossSectionTypes}"
+                      ItemsSource="{Binding CrossSectionShapes}"
                       SelectedItem="{Binding SelectedCrossSectionType, Mode=TwoWay}">
             </ComboBox>
         </StackPanel>

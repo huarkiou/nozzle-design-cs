@@ -3,7 +3,7 @@ using Corelib.Geometry;
 
 namespace GuiApp.ViewModels;
 
-public partial class CrossSectionRectangularViewModel : ViewModelBase, IClosedCurveViewModel
+public partial class CrossSectionRectangularViewModel : ClosedCurveViewModel
 {
     [ObservableProperty]
     public partial double X { get; set; } = 0;
@@ -16,12 +16,12 @@ public partial class CrossSectionRectangularViewModel : ViewModelBase, IClosedCu
     [ObservableProperty]
     public partial double Alpha { get; set; } = 0;
 
-    public IClosedCurve? GetClosedCurve()
+    public override IClosedCurve? GetClosedCurve()
     {
         return new Rectangular(X, Y, Length, Width, double.DegreesToRadians(Alpha));
     }
 
-    public string GetTomlString()
+    public override string GetTomlString()
     {
         const string ret = """
                            # 是否用基准流场的进/出口截面高度对坐标进行标准化到单位圆内(若为false，则后续长度单位均为m，默认为true)
@@ -38,10 +38,43 @@ public partial class CrossSectionRectangularViewModel : ViewModelBase, IClosedCu
                            alpha = 0
                            """;
         var model = Tomlyn.Toml.ToModel(ret);
+        model["normalized"] = IsNormalized;
         model["center"] = (double[]) [X, Y];
         model["length"] = Length;
         model["width"] = Width;
         model["alpha"] = Alpha;
         return Tomlyn.Toml.FromModel(model);
+    }
+
+    public override IClosedCurve? GetRawClosedCurve()
+    {
+        return IsNormalized
+            ? new Rectangular(X * HNorm, Y * HNorm, Length * HNorm, Width * HNorm, double.DegreesToRadians(Alpha))
+            : new Rectangular(X, Y, Length, Width, double.DegreesToRadians(Alpha));
+    }
+
+    public override IClosedCurve? GetNormalizedClosedCurve()
+    {
+        return IsNormalized
+            ? new Rectangular(X, Y, Length, Width, double.DegreesToRadians(Alpha))
+            : new Rectangular(X / HNorm, Y / HNorm, Length / HNorm, Width / HNorm, double.DegreesToRadians(Alpha));
+    }
+
+    protected override void OnNormalizedStateChanged()
+    {
+        if (IsNormalized)
+        {
+            X /= HNorm;
+            Y /= HNorm;
+            Width /= HNorm;
+            Length /= HNorm;
+        }
+        else
+        {
+            X *= HNorm;
+            Y *= HNorm;
+            Width *= HNorm;
+            Length *= HNorm;
+        }
     }
 }

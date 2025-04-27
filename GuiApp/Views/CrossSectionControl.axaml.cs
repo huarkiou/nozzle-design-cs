@@ -1,13 +1,20 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using GuiApp.Models;
+using GuiApp.ViewModels;
 
 namespace GuiApp.Views;
 
 public partial class CrossSectionControl : UserControl
 {
-    public CrossSectionControl()
+    public CrossSectionControl(CrossSectionPosition type)
     {
         InitializeComponent();
+        var vm = new CrossSectionControlViewModel
+        {
+            Position = type
+        };
+        DataContext = vm;
     }
 
     public static readonly StyledProperty<string?> LabelProperty =

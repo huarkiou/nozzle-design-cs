@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
@@ -23,15 +22,21 @@ using Point = Corelib.Geometry.Point;
 
 namespace GuiApp.ViewModels;
 
-public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidFieldMessage>
+public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldValueChangedMessages>
 {
     public SltnControlViewModel()
     {
-        WeakReferenceMessenger.Default.Register<BaseFluidFieldMessage, string>(this, nameof(OtnControlViewModel));
+        WeakReferenceMessenger.Default.Register<BaseFieldValueChangedMessages, string>(this,
+            nameof(OtnControlViewModel));
     }
 
-    public CrossSectionControl Inlet { get; } = new() { Label = "进口截面形状：" };
-    public CrossSectionControl Outlet { get; } = new() { Label = "出口截面形状：" };
+    public void Receive(BaseFieldValueChangedMessages valueChangedMessage)
+    {
+        FieldDataSource = valueChangedMessage.Value;
+    }
+
+    public CrossSectionControl Inlet { get; } = new(CrossSectionPosition.Inlet) { Label = "进口截面形状：" };
+    public CrossSectionControl Outlet { get; } = new(CrossSectionPosition.Outlet) { Label = "出口截面形状：" };
 
     private DirectoryInfo? _currentDirectory;
     private const string ConfigFileName = "sltn_config.toml";
@@ -68,6 +73,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
 
     [ObservableProperty]
     public partial string? FieldDataSource { get; set; } = null;
+    public static string FieldDataSourceToolTip => "基准流场数据文件路径\n使用最大推力喷管功能计算时自动设置，但也可以手动指定";
 
     // View
     public AvaPlot Displayer2D { get; } = new();
@@ -83,27 +89,79 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         Displayer2D.Plot.Clear();
         Displayer2D.Plot.XLabel("x");
         Displayer2D.Plot.YLabel("y");
+        Displayer2D.Plot.Axes.SquareUnits();
         var font = SKFontManager.Default.MatchCharacter('汉').FamilyName;
 
-        var unit = Displayer2D.Plot.Add.Circle(0, 0, 1);
-        unit.LineColor = Color.FromColor(System.Drawing.Color.Black);
-        unit.LinePattern = LinePattern.DenselyDashed;
-        unit.LegendText = "单位圆";
+        var inletInputer = (Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer;
+        var inletVm = inletInputer is null ? null : (inletInputer.DataContext as ClosedCurveViewModel)!;
+        var outletInputer = (Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer;
+        var outletVm = outletInputer is null ? null : (outletInputer.DataContext as ClosedCurveViewModel)!;
 
-        (double[] dataX, double[] dataY) = GetXYFromInputer(
-            (Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer,
-            NumCircumferentialDivision);
-        var inletLine = Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
-        inletLine.LineColor = Color.FromColor(System.Drawing.Color.Blue);
-        inletLine.LegendText = "进口";
+        bool normalized;
+        if (inletVm is not null && outletVm is not null)
+        {
+            normalized = inletVm.IsNormalized && outletVm.IsNormalized;
+            normalized &= !(double.IsFinite(inletVm.HNorm) && double.IsFinite(outletVm.HNorm));
+        }
+        else if (inletVm is not null)
+        {
+            normalized = inletVm.IsNormalized;
+            normalized &= !double.IsFinite(inletVm.HNorm);
+        }
+        else if (outletVm is not null)
+        {
+            normalized = outletVm.IsNormalized;
+            normalized &= !double.IsFinite(outletVm.HNorm);
+        }
+        else
+        {
+            normalized = true;
+        }
 
-        (dataX, dataY) = GetXYFromInputer((Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer,
-            NumCircumferentialDivision);
-        var outletLine = Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
-        outletLine.LineColor = Color.FromColor(System.Drawing.Color.Red);
-        outletLine.LegendText = "出口";
+        if (normalized)
+        {
+            var unit = Displayer2D.Plot.Add.Circle(0, 0, 1);
+            unit.LineColor = Color.FromColor(System.Drawing.Color.Black);
+            unit.LinePattern = LinePattern.DenselyDashed;
+            unit.LegendText = "单位圆";
+        }
 
-        Displayer2D.Plot.Axes.SquareUnits();
+        // 进口
+        if (inletVm is not null)
+        {
+            if (!normalized)
+            {
+                var unitInlet = Displayer2D.Plot.Add.Circle(0, 0, inletVm.HNorm);
+                unitInlet.LineColor = Color.FromColor(System.Drawing.Color.Black);
+                unitInlet.LinePattern = LinePattern.DenselyDashed;
+                unitInlet.LegendText = "进口轮廓圆";
+            }
+
+            (double[] dataX, double[] dataY) = GetXYFromInputer(inletVm, NumCircumferentialDivision, normalized);
+            var inletLine = Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
+            inletLine.LineColor = Color.FromColor(System.Drawing.Color.Blue);
+            inletLine.LinePattern = LinePattern.DenselyDashed;
+            inletLine.LegendText = "进口";
+        }
+
+        // 出口
+        if (outletVm is not null)
+        {
+            if (!normalized)
+            {
+                var unitOutlet = Displayer2D.Plot.Add.Circle(0, 0, outletVm.HNorm);
+                unitOutlet.LineColor = Color.FromColor(System.Drawing.Color.Black);
+                unitOutlet.LinePattern = LinePattern.Solid;
+                unitOutlet.LegendText = "出口轮廓圆";
+            }
+
+            (double[] dataX, double[] dataY) = GetXYFromInputer(outletVm, NumCircumferentialDivision, normalized);
+            var outletLine = Displayer2D.Plot.Add.ScatterLine(dataX, dataY);
+            outletLine.LineColor = Color.FromColor(System.Drawing.Color.Red);
+            outletLine.LinePattern = LinePattern.Solid;
+            outletLine.LegendText = "出口";
+        }
+
         Displayer2D.Plot.Axes.AutoScale();
         var legend = Displayer2D.Plot.ShowLegend();
         legend.Alignment = Alignment.UpperLeft;
@@ -111,9 +169,18 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         Displayer2D.Refresh();
         return;
 
-        (double[], double[]) GetXYFromInputer(UserControl? type, int numDivision)
+        (double[], double[]) GetXYFromInputer(ClosedCurveViewModel vm, int numDivision, bool normalize = true)
         {
-            IClosedCurve? c = (type?.DataContext as IClosedCurveViewModel)?.GetClosedCurve();
+            IClosedCurve? c;
+            try
+            {
+                c = normalize ? vm.GetNormalizedClosedCurve() : vm.GetRawClosedCurve();
+            }
+            catch (Exception)
+            {
+                c = null;
+            }
+
             if (c is null)
             {
                 return ([], []);
@@ -145,7 +212,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
 
                           """;
         inletConfig += ((Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer?.DataContext as
-            IClosedCurveViewModel)?.GetTomlString();
+            ClosedCurveViewModel)?.GetTomlString();
 
         var outletConfig = """
                            ###### 出口截面参数 ######
@@ -154,7 +221,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
 
                            """;
         outletConfig += ((Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer?.DataContext as
-            IClosedCurveViewModel)?.GetTomlString();
+            ClosedCurveViewModel)?.GetTomlString();
 
         _currentDirectory?.Delete(true);
         _currentDirectory = Directory.CreateTempSubdirectory("guiapp-sltn-");
@@ -276,11 +343,6 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         process.Close();
     }
 
-    public void Receive(BaseFluidFieldMessage message)
-    {
-        FieldDataSource = message.Value;
-    }
-
     public async Task ExportResultAsync()
     {
         var datResultFile = _currentDirectory is not null
@@ -320,5 +382,24 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFluidF
         {
             await MessageBoxManager.GetMessageBoxStandard("错误", "请先计算后再导出").ShowAsync();
         }
+    }
+
+    [RelayCommand]
+    public async Task ChangeVerticesFile()
+    {
+        var file = await Ioc.Default.GetService<IStorageProvider>()!.OpenFilePickerAsync(
+            new FilePickerOpenOptions
+            {
+                Title = "选择基准流场数据文件",
+                AllowMultiple = false,
+                FileTypeFilter =
+                    [FilePickerFileTypes.TextPlain, FilePickerFileTypes.All],
+            });
+        if (file.Count < 1 || FieldDataSource == file[0].Path.AbsolutePath)
+        {
+            return;
+        }
+
+        FieldDataSource = file[0].Path.AbsolutePath;
     }
 }
