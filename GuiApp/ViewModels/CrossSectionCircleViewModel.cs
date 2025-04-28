@@ -16,11 +16,6 @@ public partial class CrossSectionCircleViewModel : ClosedCurveViewModel
     public static string RadiusToolTip { get; set; } = "圆的半径R";
 
 
-    public override IClosedCurve? GetClosedCurve()
-    {
-        return new Circle(X, Y, Radius);
-    }
-
     public override string GetTomlString()
     {
         const string ret = """
@@ -40,14 +35,19 @@ public partial class CrossSectionCircleViewModel : ClosedCurveViewModel
         return Tomlyn.Toml.FromModel(model);
     }
 
+    public override IClosedCurve? GetClosedCurve()
+    {
+        return new Circle(X, Y, Radius);
+    }
+
     public override IClosedCurve? GetRawClosedCurve()
     {
-        return IsNormalized ? new Circle(X * HNorm, Y * HNorm, Radius * HNorm) : new Circle(X, Y, Radius);
+        return IsNormalized ? new Circle(X * HNorm, Y * HNorm, Radius * HNorm) : GetClosedCurve();
     }
 
     public override IClosedCurve? GetNormalizedClosedCurve()
     {
-        return IsNormalized ? new Circle(X, Y, Radius) : new Circle(X / HNorm, Y / HNorm, Radius / HNorm);
+        return IsNormalized ? GetClosedCurve() : new Circle(X / HNorm, Y / HNorm, Radius / HNorm);
     }
 
     protected override void OnNormalizedStateChanged()
