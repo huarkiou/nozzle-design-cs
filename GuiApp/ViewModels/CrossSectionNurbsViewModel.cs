@@ -63,17 +63,7 @@ public partial class CrossSectionNurbsViewModel : ClosedCurveViewModel
             _controlPoints = null;
         }
     }
-
-    public override IClosedCurve? GetClosedCurve()
-    {
-        if (_controlPoints is null)
-        {
-            return null;
-        }
-
-        throw new NotImplementedException();
-    }
-
+    
     public override string GetTomlString()
     {
         const string ret = """
@@ -98,6 +88,16 @@ public partial class CrossSectionNurbsViewModel : ClosedCurveViewModel
         model["datasource"] = NurbsFilePath ?? string.Empty;
         model["alpha"] = Alpha;
         return Tomlyn.Toml.FromModel(model);
+    }
+
+    public override IClosedCurve? GetClosedCurve()
+    {
+        if (_controlPoints is null)
+        {
+            return null;
+        }
+
+        throw new NotImplementedException();
     }
 
     public override IClosedCurve? GetRawClosedCurve()
