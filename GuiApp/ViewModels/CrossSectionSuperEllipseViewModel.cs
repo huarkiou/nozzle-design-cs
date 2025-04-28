@@ -7,21 +7,24 @@ public partial class CrossSectionSuperEllipseViewModel : ClosedCurveViewModel
 {
     [ObservableProperty]
     public partial double X { get; set; } = 0;
+    public static string XToolTip { get; set; } = "中心x坐标";
     [ObservableProperty]
     public partial double Y { get; set; } = 0.1;
+    public static string YToolTip { get; set; } = "中心y坐标";
     [ObservableProperty]
     public partial double A { get; set; } = 0.6;
+    public static string AToolTip { get; set; } = "长半轴长a";
     [ObservableProperty]
     public partial double B { get; set; } = 0.4;
+    public static string BToolTip { get; set; } = "短半轴长b";
     [ObservableProperty]
     public partial double Alpha { get; set; } = 0;
+    public static string AlphaToolTip { get; set; } = "旋转角α(长轴与θ=0轴的夹角)/°";
     [ObservableProperty]
     public partial double Power { get; set; } = 2;
+    public static string PowerToolTip { get; set; } =
+        "幂次n\n注意：0<n<2时，超椭圆也称为次椭圆，形状类似菱形；n=2时，超椭圆形状即椭圆；n>2时，称为过椭圆，形状为四角有圆角的矩形；n->+∞时，超椭圆形状即为矩形";
 
-    public override IClosedCurve? GetClosedCurve()
-    {
-        return new SuperEllipse(X, Y, A, B, Power, double.DegreesToRadians(Alpha));
-    }
 
     public override string GetTomlString()
     {
@@ -51,17 +54,22 @@ public partial class CrossSectionSuperEllipseViewModel : ClosedCurveViewModel
         return Tomlyn.Toml.FromModel(model);
     }
 
+    public override IClosedCurve? GetClosedCurve()
+    {
+        return new SuperEllipse(X, Y, A, B, Power, double.DegreesToRadians(Alpha));
+    }
+
     public override IClosedCurve? GetRawClosedCurve()
     {
         return IsNormalized
             ? new SuperEllipse(X * HNorm, Y * HNorm, A * HNorm, B * HNorm, Power, double.DegreesToRadians(Alpha))
-            : new SuperEllipse(X, Y, A, B, Power, double.DegreesToRadians(Alpha));
+            : GetClosedCurve();
     }
 
     public override IClosedCurve? GetNormalizedClosedCurve()
     {
         return IsNormalized
-            ? new SuperEllipse(X, Y, A, B, Power, double.DegreesToRadians(Alpha))
+            ? GetClosedCurve()
             : new SuperEllipse(X / HNorm, Y / HNorm, A / HNorm, B / HNorm, Power, double.DegreesToRadians(Alpha));
     }
 

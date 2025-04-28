@@ -16,11 +16,17 @@
         <view:BinarySelector LabelTrue="归一化" LabelFalse="原始值"
                              IsTrue="{Binding IsNormalized, Mode=TwoWay}"
                              ToolTip.Tip="{Binding IsNormalizedToolTip}" />
-        <view:LabeledInput Label="中心x：" Input="{Binding X, Mode=TwoWay}" />
-        <view:LabeledInput Label="中心y：" Input="{Binding Y, Mode=TwoWay}" />
-        <view:LabeledInput Label="长半轴长a：" Input="{Binding A, Mode=TwoWay}" />
-        <view:LabeledInput Label="短半轴长b：" Input="{Binding B, Mode=TwoWay}" />
-        <view:LabeledInput Label="旋转角α：" Input="{Binding Alpha, Mode=TwoWay}" />
-        <view:LabeledInput Label="幂次n：" Input="{Binding Power, Mode=TwoWay}" />
+        <view:LabeledInput Label="中心x：" Input="{Binding X, Mode=TwoWay}"
+                           ToolTip.Tip="{Binding XToolTip}" />
+        <view:LabeledInput Label="中心y：" Input="{Binding Y, Mode=TwoWay}"
+                           ToolTip.Tip="{Binding YToolTip}" />
+        <view:LabeledInput Label="长半轴长a：" Input="{Binding A, Mode=TwoWay}"
+                           ToolTip.Tip="{Binding AToolTip}" />
+        <view:LabeledInput Label="短半轴长b：" Input="{Binding B, Mode=TwoWay}"
+                           ToolTip.Tip="{Binding BToolTip}" />
+        <view:LabeledInput Label="旋转角α：" Input="{Binding Alpha, Mode=TwoWay}"
+                           ToolTip.Tip="{Binding AlphaToolTip}" />
+        <view:LabeledInput Label="幂次n：" Input="{Binding Power, Mode=TwoWay}"
+                           ToolTip.Tip="{Binding PowerToolTip}" />
     </StackPanel>
 </UserControl>

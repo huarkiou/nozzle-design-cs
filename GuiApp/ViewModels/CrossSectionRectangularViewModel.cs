@@ -19,7 +19,7 @@ public partial class CrossSectionRectangularViewModel : ClosedCurveViewModel
     public static string WidthToolTip { get; set; } = "宽度W";
     [ObservableProperty]
     public partial double Alpha { get; set; } = 0;
-    public static string AlphaToolTip { get; set; } = "旋转角α";
+    public static string AlphaToolTip { get; set; } = "旋转角α(长边与θ=0轴的夹角)/°";
 
 
     public override string GetTomlString()
