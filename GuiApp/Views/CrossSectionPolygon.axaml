@@ -16,10 +16,13 @@
         <view:BinarySelector LabelTrue="归一化" LabelFalse="原始值"
                              IsTrue="{Binding IsNormalized, Mode=TwoWay}"
                              ToolTip.Tip="{Binding IsNormalizedToolTip}" />
-        <view:LabeledInput Label="中心x：" Input="{Binding X, Mode=TwoWay}" />
-        <view:LabeledInput Label="中心y：" Input="{Binding Y, Mode=TwoWay}" />
-        <view:LabeledInput Label="旋转角α：" Input="{Binding Alpha, Mode=TwoWay}" />
-        <Panel>
+        <view:LabeledInput Label="中心x：" Input="{Binding X, Mode=TwoWay}"
+                           ToolTip.Tip="{Binding XToolTip}" />
+        <view:LabeledInput Label="中心y：" Input="{Binding Y, Mode=TwoWay}"
+                           ToolTip.Tip="{Binding YToolTip}" />
+        <view:LabeledInput Label="旋转角α：" Input="{Binding Alpha, Mode=TwoWay}"
+                           ToolTip.Tip="{Binding AlphaToolTip}" />
+        <Panel ToolTip.Tip="{Binding VerticesFilePathToolTip}">
             <view:LabeledInput Label="顶点文件：" Input="{Binding VerticesFilePath, Mode=TwoWay}" />
             <Button HorizontalAlignment="Right" Margin="0,0,-20,0" Padding="0"
                     Background="Transparent" IsTabStop="False"

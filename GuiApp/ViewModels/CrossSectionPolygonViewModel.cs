@@ -12,12 +12,18 @@ public partial class CrossSectionPolygonViewModel : ClosedCurveViewModel
 {
     [ObservableProperty]
     public partial double X { get; set; } = double.NaN;
+    public static string XToolTip { get; set; } = "圆心x坐标";
+
     [ObservableProperty]
     public partial double Y { get; set; } = double.NaN;
+    public static string YToolTip { get; set; } = "圆心y坐标";
     [ObservableProperty]
     public partial string? VerticesFilePath { get; set; } = null;
+    public static string VerticesFilePathToolTip { get; set; } =
+        "顶点数据文件路径\n注意：文件英文纯文本文件，顶点的二维坐标用英文逗号,、空格 、或者制表符\t分隔，每行一个\n示例：\n\t-1, -1\n\t 1, -1\n\t 1,  1\n\t-1,  1";
     [ObservableProperty]
     public partial double Alpha { get; set; } = 0;
+    public static string AlphaToolTip { get; set; } = "旋转角α";
     [ObservableProperty]
     public partial ObservableCollection<Point> Vertices { get; set; } = [];
 
@@ -72,16 +78,6 @@ public partial class CrossSectionPolygonViewModel : ClosedCurveViewModel
         VerticesFilePath = file[0].Path.AbsolutePath;
     }
 
-    public override IClosedCurve? GetClosedCurve()
-    {
-        if (_vertices is null || _vertices.Length < 3)
-        {
-            return null;
-        }
-
-        return new Polygon(X, Y, _vertices, double.DegreesToRadians(Alpha));
-    }
-
     public override string GetTomlString()
     {
         const string ret = """
@@ -108,6 +104,16 @@ public partial class CrossSectionPolygonViewModel : ClosedCurveViewModel
         return Tomlyn.Toml.FromModel(model);
     }
 
+    public override IClosedCurve? GetClosedCurve()
+    {
+        if (_vertices is null || _vertices.Length < 3)
+        {
+            return null;
+        }
+
+        return new Polygon(X, Y, _vertices, double.DegreesToRadians(Alpha));
+    }
+
     public override IClosedCurve? GetRawClosedCurve()
     {
         if (_vertices is null || _vertices.Length < 3)
@@ -117,7 +123,7 @@ public partial class CrossSectionPolygonViewModel : ClosedCurveViewModel
 
         return IsNormalized
             ? new Polygon(X * HNorm, Y * HNorm, _vertices, double.DegreesToRadians(Alpha))
-            : new Polygon(X, Y, _vertices, double.DegreesToRadians(Alpha));
+            : GetClosedCurve();
     }
 
     public override IClosedCurve? GetNormalizedClosedCurve()
@@ -128,7 +134,7 @@ public partial class CrossSectionPolygonViewModel : ClosedCurveViewModel
         }
 
         return IsNormalized
-            ? new Polygon(X, Y, _vertices, double.DegreesToRadians(Alpha))
+            ? GetClosedCurve()
             : new Polygon(X / HNorm, Y / HNorm, _vertices, double.DegreesToRadians(Alpha));
     }
 
