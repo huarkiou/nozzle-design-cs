@@ -16,11 +16,13 @@ public abstract partial class ClosedCurveViewModel : ViewModelBase
         get;
         init
         {
-            value = !double.IsFinite(HNorm) || value;
             if (field == value) return;
-            field = value;
+            var oldValue = field;
+            var newValue = !double.IsFinite(HNorm) || value;
+            field = newValue;
             OnPropertyChanged();
-            OnNormalizedStateChanged();
+            if (oldValue != newValue)
+                OnNormalizedStateChanged();
         }
     } = true;
     public static string IsNormalizedToolTip => "是否对进/出口截面坐标分别用基准流场进/出口截面高度进行归一化\n注意：若在没有生成最大推力喷管时就修改此选项，将下方数值变为导致NaN";

@@ -11,7 +11,7 @@ public partial class BinarySelector : UserControl
         InitializeComponent();
         IsTrue = !IsTrue;
         IsTrue = !IsTrue;
-        TrueRadioButton.IsCheckedChanged += (_, _) => { IsTrue = TrueRadioButton.IsChecked == true; };
+        TrueRadioButton.IsCheckedChanged += (_, _) => IsTrue = TrueRadioButton.IsChecked == true;
     }
 
     public static readonly StyledProperty<string?> LabelTrueProperty =
