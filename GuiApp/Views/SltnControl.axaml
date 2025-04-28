@@ -59,7 +59,7 @@
                         <view:LabeledInput Label="基准流场文件：" Input="{Binding FieldDataSource, Mode=TwoWay}" />
                         <Button HorizontalAlignment="Right" Margin="0,0,-20,0" Padding="0"
                                 Background="Transparent" IsTabStop="False"
-                                ToolTip.Tip="选择文件" Command="{Binding ChangeVerticesFile}">
+                                ToolTip.Tip="选择文件" Command="{Binding ChangeBaseFieldFile}">
                             <Image HorizontalAlignment="Center" Width="24" Height="24"
                                    Source="avares://GuiApp/Assets/file.png" />
                         </Button>

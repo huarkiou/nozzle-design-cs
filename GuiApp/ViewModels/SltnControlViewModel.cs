@@ -385,7 +385,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
     }
 
     [RelayCommand]
-    public async Task ChangeVerticesFile()
+    public async Task ChangeBaseFieldFile()
     {
         var file = await Ioc.Default.GetService<IStorageProvider>()!.OpenFilePickerAsync(
             new FilePickerOpenOptions
