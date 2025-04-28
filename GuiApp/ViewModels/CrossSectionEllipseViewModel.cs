@@ -7,19 +7,20 @@ public partial class CrossSectionEllipseViewModel : ClosedCurveViewModel
 {
     [ObservableProperty]
     public partial double X { get; set; } = 0;
+    public static string XToolTip { get; set; } = "中心x坐标";
     [ObservableProperty]
     public partial double Y { get; set; } = 0.1;
+    public static string YToolTip { get; set; } = "中心y坐标";
     [ObservableProperty]
     public partial double A { get; set; } = 0.6;
+    public static string AToolTip { get; set; } = "长半轴长a";
     [ObservableProperty]
     public partial double B { get; set; } = 0.4;
+    public static string BToolTip { get; set; } = "短半轴长b";
     [ObservableProperty]
     public partial double Alpha { get; set; } = 0;
+    public static string AlphaToolTip { get; set; } = "旋转角α";
 
-    public override IClosedCurve? GetClosedCurve()
-    {
-        return new Ellipse(X, Y, A, B, double.DegreesToRadians(Alpha));
-    }
 
     public override string GetTomlString()
     {
@@ -46,17 +47,22 @@ public partial class CrossSectionEllipseViewModel : ClosedCurveViewModel
         return Tomlyn.Toml.FromModel(model);
     }
 
+    public override IClosedCurve? GetClosedCurve()
+    {
+        return new Ellipse(X, Y, A, B, double.DegreesToRadians(Alpha));
+    }
+
     public override IClosedCurve? GetRawClosedCurve()
     {
         return IsNormalized
             ? new Ellipse(X * HNorm, Y * HNorm, A * HNorm, B * HNorm, double.DegreesToRadians(Alpha))
-            : new Ellipse(X, Y, A, B, double.DegreesToRadians(Alpha));
+            : GetClosedCurve();
     }
 
     public override IClosedCurve? GetNormalizedClosedCurve()
     {
         return IsNormalized
-            ? new Ellipse(X, Y, A, B, double.DegreesToRadians(Alpha))
+            ? GetClosedCurve()
             : new Ellipse(X / HNorm, Y / HNorm, A / HNorm, B / HNorm, double.DegreesToRadians(Alpha));
     }
 
