@@ -7,19 +7,20 @@ public partial class CrossSectionRectangularViewModel : ClosedCurveViewModel
 {
     [ObservableProperty]
     public partial double X { get; set; } = 0;
+    public static string XToolTip { get; set; } = "中心x坐标";
     [ObservableProperty]
     public partial double Y { get; set; } = 0.1;
+    public static string YToolTip { get; set; } = "中心y坐标";
     [ObservableProperty]
     public partial double Length { get; set; } = 0.6;
+    public static string LengthToolTip { get; set; } = "长度L";
     [ObservableProperty]
     public partial double Width { get; set; } = 0.4;
+    public static string WidthToolTip { get; set; } = "宽度W";
     [ObservableProperty]
     public partial double Alpha { get; set; } = 0;
+    public static string AlphaToolTip { get; set; } = "旋转角α";
 
-    public override IClosedCurve? GetClosedCurve()
-    {
-        return new Rectangular(X, Y, Length, Width, double.DegreesToRadians(Alpha));
-    }
 
     public override string GetTomlString()
     {
@@ -46,17 +47,22 @@ public partial class CrossSectionRectangularViewModel : ClosedCurveViewModel
         return Tomlyn.Toml.FromModel(model);
     }
 
+    public override IClosedCurve? GetClosedCurve()
+    {
+        return new Rectangular(X, Y, Length, Width, double.DegreesToRadians(Alpha));
+    }
+
     public override IClosedCurve? GetRawClosedCurve()
     {
         return IsNormalized
             ? new Rectangular(X * HNorm, Y * HNorm, Length * HNorm, Width * HNorm, double.DegreesToRadians(Alpha))
-            : new Rectangular(X, Y, Length, Width, double.DegreesToRadians(Alpha));
+            : GetClosedCurve();
     }
 
     public override IClosedCurve? GetNormalizedClosedCurve()
     {
         return IsNormalized
-            ? new Rectangular(X, Y, Length, Width, double.DegreesToRadians(Alpha))
+            ? GetClosedCurve()
             : new Rectangular(X / HNorm, Y / HNorm, Length / HNorm, Width / HNorm, double.DegreesToRadians(Alpha));
     }
 

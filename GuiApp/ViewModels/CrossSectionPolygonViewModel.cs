@@ -12,11 +12,11 @@ public partial class CrossSectionPolygonViewModel : ClosedCurveViewModel
 {
     [ObservableProperty]
     public partial double X { get; set; } = double.NaN;
-    public static string XToolTip { get; set; } = "圆心x坐标";
+    public static string XToolTip { get; set; } = "中心x坐标";
 
     [ObservableProperty]
     public partial double Y { get; set; } = double.NaN;
-    public static string YToolTip { get; set; } = "圆心y坐标";
+    public static string YToolTip { get; set; } = "中心y坐标";
     [ObservableProperty]
     public partial string? VerticesFilePath { get; set; } = null;
     public static string VerticesFilePathToolTip { get; set; } =
