@@ -15,7 +15,7 @@ public partial class MainWindowViewModel(
     private const string Copyright = """
                                      作者：Huarkiou
                                      个人主页：https://github.com/huarkiou
-                                     修改时间：2025-04-24
+                                     修改时间：2025-04-30
                                      """;
 
     [ObservableProperty]

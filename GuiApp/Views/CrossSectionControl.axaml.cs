@@ -7,6 +7,10 @@ namespace GuiApp.Views;
 
 public partial class CrossSectionControl : UserControl
 {
+    public CrossSectionControl() : this(CrossSectionPosition.Inlet)
+    {
+    }
+
     public CrossSectionControl(CrossSectionPosition type)
     {
         InitializeComponent();
