@@ -15,7 +15,7 @@ public partial class MainWindowViewModel(
     private const string Copyright = """
                                      作者：Huarkiou
                                      个人主页：https://github.com/huarkiou
-                                     修改时间：2025-04-30
+                                     修改时间：2025-05-02
                                      """;
 
     [ObservableProperty]
@@ -24,18 +24,19 @@ public partial class MainWindowViewModel(
     [RelayCommand]
     public async Task ExportResult()
     {
-        if (CurrentIndex == OtnIndex)
+        switch (CurrentIndex)
         {
-            await otnControlViewModel.ExportResultAsync();
-        }
-        else if (CurrentIndex == SltnIndex)
-        {
-            await sltnControlViewModel.ExportResultAsync();
+            case OtnIndex:
+                await otnControlViewModel.ExportResultAsync();
+                break;
+            case SltnIndex:
+                await sltnControlViewModel.ExportResultAsync();
+                break;
         }
     }
 
     [RelayCommand]
-    public async Task ShowCopyright()
+    public static async Task ShowCopyright()
     {
         await MessageBoxManager.GetMessageBoxStandard("说明", Copyright).ShowAsync();
     }
