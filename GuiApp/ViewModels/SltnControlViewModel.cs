@@ -90,6 +90,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
         Displayer2D.Plot.XLabel("x");
         Displayer2D.Plot.YLabel("y");
         Displayer2D.Plot.Axes.SquareUnits();
+        Displayer2D.Plot.Axes.AntiAlias(true);
         var font = SKFontManager.Default.MatchCharacter('汉').FamilyName;
 
         var inletInputer = (Inlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer;

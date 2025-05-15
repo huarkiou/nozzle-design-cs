@@ -243,7 +243,8 @@ public partial class OtnControlViewModel : ViewModelBase
         var fieldResultFile = Path.Combine(_currentDirectory!.FullName, OutputPrefix + FieldResultFileName);
         if (File.Exists(fieldResultFile))
         {
-            WeakReferenceMessenger.Default.Send(new BaseFieldValueChangedMessages(Path.Combine(_currentDirectory.FullName,
+            WeakReferenceMessenger.Default.Send(new BaseFieldValueChangedMessages(Path.Combine(
+                _currentDirectory.FullName,
                 OutputPrefix + FieldResultFileName)), nameof(OtnControlViewModel));
         }
 
@@ -255,6 +256,8 @@ public partial class OtnControlViewModel : ViewModelBase
         Displayer2D.Plot.Clear();
         Displayer2D.Plot.XLabel("x/m");
         Displayer2D.Plot.YLabel("y/m");
+        Displayer2D.Plot.Axes.SquareUnits();
+        Displayer2D.Plot.Axes.AntiAlias(true);
 
         var geoResultFile = Path.Combine(_currentDirectory!.FullName, OutputPrefix + GeoResultFileName);
         if (!File.Exists(geoResultFile))
@@ -283,8 +286,7 @@ public partial class OtnControlViewModel : ViewModelBase
         wallR.LineColor = Color.FromColor(System.Drawing.Color.Black);
         wallR.LinePattern = LinePattern.DenselyDashed;
         wallR.LineWidth = 1.5f;
-
-        Displayer2D.Plot.Axes.SquareUnits();
+        
         Displayer2D.Plot.Axes.AutoScale();
         Displayer2D.Refresh();
 
