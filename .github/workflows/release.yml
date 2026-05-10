@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       include_rust_tools:
-        description: 'Download otn.exe / sltn.exe from nozzle-design-rs latest release'
+        description: 'Download otn/sltn from nozzle-design-rs latest release'
         required: true
         type: boolean
         default: true
@@ -23,7 +23,19 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            ext: .exe
+            asset_suffix: windows
+          - os: ubuntu-latest
+            rid: linux-x64
+            ext: ''
+            asset_suffix: linux
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
@@ -39,51 +51,44 @@ jobs:
         run: dotnet restore
 
       - name: Publish GuiApp (Native AOT)
-        run: dotnet publish GuiApp -c Release -o publish/GuiApp
+        run: dotnet publish GuiApp -c Release -r ${{ matrix.rid }} -o publish/GuiApp -p:DebugSymbols=false -p:DebugType=none
 
       # ── 创建 tools 目录 ────────────────────────────────────────────────
       - name: Create tools directory
-        shell: pwsh
-        run: New-Item -ItemType Directory -Path publish\GuiApp\tools -Force
+        shell: bash
+        run: mkdir -p publish/GuiApp/tools
 
       # ── 下载 nozzle-design-rs 预编译工具 ──────────────────────────────
-      # nozzle-design-rs Release 资产命名格式:
-      #   nozzle-design-rs-{VERSION}-x86_64-pc-windows-msvc.zip  (内含 otn.exe + sltn.exe)
-      - name: Download otn.exe / sltn.exe from nozzle-design-rs
-        if: ${{ inputs.include_rust_tools }}
+      - name: Download otn/sltn from nozzle-design-rs
+        if: ${{ inputs.include_rust_tools && matrix.os == 'windows-latest' }}
         shell: pwsh
         run: |
           $repo = "huarkiou/nozzle-design-rs"
           $release = gh release view --repo $repo --json tagName,assets | ConvertFrom-Json
           Write-Host "Latest nozzle-design-rs release: $($release.tagName)"
 
-          $asset = $release.assets | Where-Object { $_.name -like "nozzle-design-rs-*-x86_64-pc-windows-msvc.zip" } | Select-Object -First 1
+          $asset = $release.assets | Where-Object { $_.name -like "*-windows*.zip" } | Select-Object -First 1
 
           if ($asset) {
             gh release download $release.tagName --repo $repo --pattern $asset.name --dir rs-tools
             Expand-Archive -Path "rs-tools\$($asset.name)" -DestinationPath rs-tools -Force
 
-            $otnExe = Get-ChildItem rs-tools -Filter otn.exe -Recurse | Select-Object -First 1
-            $sltnExe = Get-ChildItem rs-tools -Filter sltn.exe -Recurse | Select-Object -First 1
+            $otn = Get-ChildItem rs-tools -Filter otn.exe -Recurse | Select-Object -First 1
+            $sltn = Get-ChildItem rs-tools -Filter sltn.exe -Recurse | Select-Object -First 1
 
-            if ($otnExe) {
-              Copy-Item $otnExe.FullName publish\GuiApp\tools\otn.exe
-              Write-Host "Extracted otn.exe"
-            } else { Write-Warning "otn.exe not found in archive" }
-
-            if ($sltnExe) {
-              Copy-Item $sltnExe.FullName publish\GuiApp\tools\sltn.exe
-              Write-Host "Extracted sltn.exe"
-            } else { Write-Warning "sltn.exe not found in archive" }
+            if ($otn) { Copy-Item $otn.FullName publish\GuiApp\tools\otn.exe; Write-Host "Extracted otn.exe" }
+            else { Write-Warning "otn.exe not found" }
+            if ($sltn) { Copy-Item $sltn.FullName publish\GuiApp\tools\sltn.exe; Write-Host "Extracted sltn.exe" }
+            else { Write-Warning "sltn.exe not found" }
           } else {
-            Write-Warning "nozzle-design-rs Windows asset not found in release"
+            Write-Warning "nozzle-design-rs ${{ matrix.asset_suffix }} asset not found"
           }
         env:
           GH_TOKEN: ${{ github.token }}
 
       # ── 下载 objviewer ─────────────────────────────────────────────────
       - name: Download objviewer (latest release)
-        if: ${{ inputs.include_obj_viewer }}
+        if: ${{ inputs.include_obj_viewer && matrix.os == 'windows-latest' }}
         shell: pwsh
         run: |
           $repo = "huarkiou/objviewer"
@@ -95,28 +100,52 @@ jobs:
           if ($zip) {
             gh release download $release.tagName --repo $repo --pattern $zip.name --dir objviewer-dl
             Expand-Archive -Path "objviewer-dl\$($zip.name)" -DestinationPath objviewer-dl -Force
-          } else {
-            Write-Warning "No objviewer Windows asset found - skipping"
-          }
 
-          $exeFile = Get-ChildItem objviewer-dl -Filter objviewer.exe -Recurse | Select-Object -First 1
-          if ($exeFile) {
-            Copy-Item $exeFile.FullName publish\GuiApp\tools\objviewer.exe
-            Write-Host "Copied objviewer.exe"
+            $exe = Get-ChildItem objviewer-dl -Filter objviewer.exe -Recurse | Select-Object -First 1
+            if ($exe) { Copy-Item $exe.FullName publish\GuiApp\tools\objviewer.exe; Write-Host "Copied objviewer.exe" }
+          } else {
+            Write-Warning "No objviewer Windows asset found"
           }
         env:
           GH_TOKEN: ${{ github.token }}
 
+      # ── 清除 PDB 等调试文件 ───────────────────────────────────────────
+      - name: Strip debug files
+        shell: bash
+        run: |
+          find publish/GuiApp -name '*.pdb' -delete
+          find publish/GuiApp -name '*.dbg' -delete
+
       # ── 打包 ───────────────────────────────────────────────────────────
-      - name: Create release archive
+      - name: Create archive (Windows)
+        if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          $archive = "nozzle-design-cs_${{ inputs.version }}_win-x64.zip"
+          $archive = "nozzle-design-cs_${{ inputs.version }}_${{ matrix.asset_suffix }}-x64.zip"
           Compress-Archive -Path publish\GuiApp\* -DestinationPath $archive
-          Write-Host "Archive created: $archive"
-          "archive_name=$archive" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "archive=$archive" >> $env:GITHUB_ENV
 
-      # ── 创建 GitHub Release ────────────────────────────────────────────
+      - name: Create archive (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          archive="nozzle-design-cs_${{ inputs.version }}_${{ matrix.asset_suffix }}-x64.zip"
+          (cd publish/GuiApp && zip -r "../../$archive" .)
+          echo "archive=$archive" >> $GITHUB_ENV
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_suffix }}-x64
+          path: ${{ env.archive }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -127,4 +156,5 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
-            nozzle-design-cs_${{ inputs.version }}_win-x64.zip
+            windows-x64/*.zip
+            linux-x64/*.zip
