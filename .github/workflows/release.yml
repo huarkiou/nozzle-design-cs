@@ -97,8 +97,8 @@ jobs:
           echo "Latest objviewer release: $tag"
 
           case "${{ matrix.asset_suffix }}" in
-            windows) pattern="*windows*.zip" ;;
-            linux)   pattern="*linux*.tar.gz" ;;
+            windows) pattern="windows.*[.]zip" ;;
+            linux)   pattern="linux.*[.]tar[.]gz" ;;
           esac
 
           asset=$(echo "$release" | jq -r ".assets[] | select(.name | test(\"$pattern\")) | .name" | head -1)
