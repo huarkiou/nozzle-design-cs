@@ -88,24 +88,39 @@ jobs:
 
       # ── 下载 objviewer ─────────────────────────────────────────────────
       - name: Download objviewer (latest release)
-        if: ${{ inputs.include_obj_viewer && matrix.os == 'windows-latest' }}
-        shell: pwsh
+        if: ${{ inputs.include_obj_viewer && (matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest') }}
+        shell: bash
         run: |
-          $repo = "huarkiou/objviewer"
-          $release = gh release view --repo $repo --json tagName,assets | ConvertFrom-Json
-          Write-Host "Latest objviewer release: $($release.tagName)"
+          repo="huarkiou/objviewer"
+          release=$(gh release view --repo "$repo" --json tagName,assets)
+          tag=$(echo "$release" | jq -r '.tagName')
+          echo "Latest objviewer release: $tag"
 
-          $zip = $release.assets | Where-Object { $_.name -like "*windows*.zip" } | Select-Object -First 1
+          case "${{ matrix.asset_suffix }}" in
+            windows) pattern="*windows*.zip" ;;
+            linux)   pattern="*linux*.tar.gz" ;;
+          esac
 
-          if ($zip) {
-            gh release download $release.tagName --repo $repo --pattern $zip.name --dir objviewer-dl
-            Expand-Archive -Path "objviewer-dl\$($zip.name)" -DestinationPath objviewer-dl -Force
+          asset=$(echo "$release" | jq -r ".assets[] | select(.name | test(\"$pattern\")) | .name" | head -1)
 
-            $exe = Get-ChildItem objviewer-dl -Filter objviewer.exe -Recurse | Select-Object -First 1
-            if ($exe) { Copy-Item $exe.FullName publish\GuiApp\tools\objviewer.exe; Write-Host "Copied objviewer.exe" }
-          } else {
-            Write-Warning "No objviewer Windows asset found"
-          }
+          if [ -n "$asset" ]; then
+            gh release download "$tag" --repo "$repo" --pattern "$asset" --dir objviewer-dl
+
+            case "${{ matrix.asset_suffix }}" in
+              windows)
+                unzip -o "objviewer-dl/$asset" -d objviewer-dl
+                cp objviewer-dl/objviewer.exe publish/GuiApp/tools/objviewer.exe
+                ;;
+              linux)
+                tar -xzf "objviewer-dl/$asset" -C objviewer-dl
+                cp objviewer-dl/objviewer publish/GuiApp/tools/objviewer
+                chmod +x publish/GuiApp/tools/objviewer
+                ;;
+            esac
+            echo "Copied objviewer (${{ matrix.asset_suffix }})"
+          else
+            echo "Warning: No objviewer ${{ matrix.asset_suffix }} asset found"
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
 
