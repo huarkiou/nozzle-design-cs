@@ -126,6 +126,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ inputs.version }}
           name: ${{ inputs.version }}
           draft: false
@@ -133,5 +134,3 @@ jobs:
           generate_release_notes: true
           files: |
             nozzle-design-cs_${{ inputs.version }}_win-x64.zip
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
