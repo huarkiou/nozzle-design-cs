@@ -71,12 +71,12 @@ public partial class OtnControlViewModel : ViewModelBase
 
     // Inlet
     [ObservableProperty]
-    public partial double Gamma { get; set; } = 1.4;
-    public static string GammaToolTip => "气流平均比热比";
+    public partial double MolecularWeight { get; set; } = 28.968;
+    public static string MolecularWeightToolTip => "摩尔质量\n单位：kg/kmol";
 
     [ObservableProperty]
-    public partial double Rg { get; set; } = 287.042;
-    public static string RgToopTip => "气流气体常数\n单位：J/(mol·K)";
+    public partial double Cp { get; set; } = double.NaN;
+    public static string CpToolTip => "定压比热容\n单位：J/(kg·K)\n设为 NaN 则使用 NASA 9系数变比热空气模型";
 
     [ObservableProperty]
     public partial double TotalPressure { get; set; } = 800000.0;
@@ -150,12 +150,15 @@ public partial class OtnControlViewModel : ViewModelBase
                                       # 喷管的横向宽度(仅二维平面)(m)
                                       width = 1
 
+                                      ###### 材料属性 ######
+                                      [Material]
+                                      # 摩尔质量 (kg/kmol)
+                                      molecular_weight = 28.968
+                                      # 定压比热容 (J/(kg·K))，常数；设为 nan 则使用 NASA 9系数变比热空气模型
+                                      cp = nan
+
                                       ###### 进口气流参数 ######
                                       [Inlet]
-                                      # 气流比热比
-                                      gamma = 1.4
-                                      # 气流气体常数(J/(mol·K))
-                                      Rg = 287.042
                                       # 来流总压(Pa)
                                       p_total = 800000.0
                                       # 来流总温(K)
@@ -170,7 +173,7 @@ public partial class OtnControlViewModel : ViewModelBase
                                       # 过渡圆弧半径(m)
                                       R_t = 0.0
                                       # 初始膨胀角(°) *若为负数或nan则由程序自动迭代计算选取，这也会导致[Geometry].height_e失效*
-                                      theta = nan
+                                      theta_a = nan
 
                                       ###### 出口约束参数 ######
                                       [Outlet]
@@ -181,8 +184,6 @@ public partial class OtnControlViewModel : ViewModelBase
                                       [IO]
                                       # 输出文件的前缀
                                       output_prefix = ""
-                                      # 是否输出ICEM CFD formatted points
-                                      export_icemcfd = false
                                       """);
         {
             ((TomlTable)otnConfigs["MOCControl"])["irrotational"] = Irrotational;
@@ -194,18 +195,16 @@ public partial class OtnControlViewModel : ViewModelBase
             ((TomlTable)otnConfigs["Geometry"])["length"] = Length;
             ((TomlTable)otnConfigs["Geometry"])["height_e"] = TargetOutletHeight;
             ((TomlTable)otnConfigs["Geometry"])["width"] = Width;
-            ((TomlTable)otnConfigs["Inlet"])["gamma"] = Gamma;
-            ((TomlTable)otnConfigs["Inlet"])["Rg"] = Rg;
+            ((TomlTable)otnConfigs["Material"])["molecular_weight"] = MolecularWeight;
+            ((TomlTable)otnConfigs["Material"])["cp"] = Cp;
             ((TomlTable)otnConfigs["Inlet"])["p_total"] = TotalPressure;
             ((TomlTable)otnConfigs["Inlet"])["T_total"] = TotalTemperature;
             ((TomlTable)otnConfigs["Inlet"])["Ma"] = MachNumber;
             ((TomlTable)otnConfigs["Inlet"])["theta"] = InletTheta;
             ((TomlTable)otnConfigs["Throat"])["R_t"] = RadiusThroat;
-            ((TomlTable)otnConfigs["Throat"])["theta"] = InitialExpansionAngle;
-            ((TomlTable)otnConfigs["Outlet"])["p_ambient"] = PressureAmbient;
+            ((TomlTable)otnConfigs["Throat"])["theta_a"] = InitialExpansionAngle;
             ((TomlTable)otnConfigs["Outlet"])["p_ambient"] = PressureAmbient;
             ((TomlTable)otnConfigs["IO"])["output_prefix"] = OutputPrefix;
-            ((TomlTable)otnConfigs["IO"])["export_icemcfd"] = false;
         }
         await File.WriteAllTextAsync(Path.Combine(_currentDirectory.FullName, ConfigFileName),
             Toml.FromModel(otnConfigs));
@@ -214,9 +213,9 @@ public partial class OtnControlViewModel : ViewModelBase
         var process = new Process();
         process.StartInfo.WorkingDirectory = _currentDirectory.FullName;
 #if DEBUG
-        process.StartInfo.FileName = @"D:\Apps\study\nozzle_design\otn\OptimumNozzle.exe";
+        process.StartInfo.FileName = @"D:\Projects\Program\nozzle-design-rs\target\release\otn.exe";
 #else
-        process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "OptimumNozzle.exe");
+        process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "otn.exe");
 #endif
         if (!File.Exists(process.StartInfo.FileName))
         {
@@ -233,10 +232,12 @@ public partial class OtnControlViewModel : ViewModelBase
         process.StartInfo.RedirectStandardInput = false;
         process.EnableRaisingEvents = true;
         process.OutputDataReceived += (_, args) => output += args.Data + "\r\n";
+        process.ErrorDataReceived += (_, args) => output += args.Data + "\r\n";
         process.Exited += (_, _) => { CanRunOtn = true; };
 
         process.Start();
         process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
         await process.WaitForExitAsync();
         process.Close();
 

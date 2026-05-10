@@ -85,7 +85,7 @@ public partial class CrossSectionNurbsViewModel : ClosedCurveViewModel
             model["center"] = (double[]) [X, Y];
         }
 
-        model["datasource"] = NurbsFilePath ?? string.Empty;
+        model["datasource"] = NurbsFilePath?.Replace('\\', '/') ?? string.Empty;
         model["alpha"] = Alpha;
         return Tomlyn.Toml.FromModel(model);
     }

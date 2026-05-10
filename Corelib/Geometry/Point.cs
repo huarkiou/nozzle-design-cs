@@ -135,6 +135,12 @@ public static class PointExtensions
             var trimmedLine = line.Trim();
             if (trimmedLine.StartsWith('#') || trimmedLine.Length == 0)
             {
+                if (result.Count > 0)
+                {
+                    ret.Add(result.ToArray());
+                    result = [];
+                }
+
                 continue;
             }
 
@@ -156,6 +162,11 @@ public static class PointExtensions
                     result.Add(new Point(x, y));
                 }
             }
+        }
+
+        if (result.Count > 0)
+        {
+            ret.Add(result.ToArray());
         }
 
         return ret;

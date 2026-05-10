@@ -98,26 +98,10 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
         var outletInputer = (Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer;
         var outletVm = outletInputer is null ? null : (outletInputer.DataContext as ClosedCurveViewModel)!;
 
-        bool normalized;
-        if (inletVm is not null && outletVm is not null)
-        {
-            normalized = inletVm.IsNormalized && outletVm.IsNormalized;
-            normalized &= !(double.IsFinite(inletVm.HNorm) && double.IsFinite(outletVm.HNorm));
-        }
-        else if (inletVm is not null)
-        {
-            normalized = inletVm.IsNormalized;
-            normalized &= !double.IsFinite(inletVm.HNorm);
-        }
-        else if (outletVm is not null)
-        {
-            normalized = outletVm.IsNormalized;
-            normalized &= !double.IsFinite(outletVm.HNorm);
-        }
-        else
-        {
-            normalized = true;
-        }
+        // 任意一个截面采用归一化输入即归一化显示；两个都未设置则默认归一化
+        bool normalized = (inletVm?.IsNormalized ?? false)
+                       || (outletVm?.IsNormalized ?? false)
+                       || (inletVm is null && outletVm is null);
 
         if (normalized)
         {
@@ -260,8 +244,9 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
             ((TomlTable)sltnConfigs["Control"])["monotonic"] = IsMonotonic;
             ((TomlTable)sltnConfigs["Control"])["weight_parameter_a"] = WeightFunctionParameter;
             ((TomlTable)sltnConfigs["BaseFluidField"])["axisymmetric"] = IsAxisymmetric;
-            ((TomlTable)sltnConfigs["BaseFluidField"])["datasource_inlet"] = FieldDataSource;
-            ((TomlTable)sltnConfigs["BaseFluidField"])["datasource_outlet"] = FieldDataSource;
+            var fieldDataSourceNormalized = FieldDataSource?.Replace('\\', '/') ?? string.Empty;
+            ((TomlTable)sltnConfigs["BaseFluidField"])["datasource_inlet"] = fieldDataSourceNormalized;
+            ((TomlTable)sltnConfigs["BaseFluidField"])["datasource_outlet"] = fieldDataSourceNormalized;
         }
         await File.WriteAllTextAsync(Path.Combine(_currentDirectory.FullName, ConfigFileName),
             Toml.FromModel(sltnConfigs) + inletConfig + outletConfig);
@@ -270,9 +255,9 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
         var process = new Process();
         process.StartInfo.WorkingDirectory = _currentDirectory.FullName;
 #if DEBUG
-        process.StartInfo.FileName = @"D:\Apps\study\nozzle_design\sltn\StreamlineTraceNozzle.exe";
+        process.StartInfo.FileName = @"D:\Projects\Program\nozzle-design-rs\target\release\sltn.exe";
 #else
-        process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "StreamlineTraceNozzle.exe");
+        process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "sltn.exe");
 #endif
         if (!File.Exists(process.StartInfo.FileName))
         {
@@ -289,10 +274,12 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
         process.StartInfo.RedirectStandardInput = false;
         process.EnableRaisingEvents = true;
         process.OutputDataReceived += (_, args) => output += args.Data + "\r\n";
+        process.ErrorDataReceived += (_, args) => output += args.Data + "\r\n";
         process.Exited += (_, _) => { CanRunSltn = true; };
 
         process.Start();
         process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
         await process.WaitForExitAsync();
         process.Close();
 

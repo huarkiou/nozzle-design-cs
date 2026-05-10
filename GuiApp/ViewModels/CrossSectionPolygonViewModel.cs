@@ -99,7 +99,7 @@ public partial class CrossSectionPolygonViewModel : ClosedCurveViewModel
             model["center"] = (double[]) [X, Y];
         }
 
-        model["datasource"] = VerticesFilePath ?? string.Empty;
+        model["datasource"] = VerticesFilePath?.Replace('\\', '/') ?? string.Empty;
         model["alpha"] = Alpha;
         return Tomlyn.Toml.FromModel(model);
     }

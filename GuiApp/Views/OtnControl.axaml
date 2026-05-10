@@ -40,10 +40,10 @@
                     <view:LabeledInput Label="目标出口高度：" Input="{Binding TargetOutletHeight, Mode=TwoWay}"
                                        ToolTip.Tip="{Binding TargetOutletHeightToolTip}" />
                     <Separator />
-                    <view:LabeledInput Label="平均比热比：" Input="{Binding Gamma, Mode=TwoWay}"
-                                       ToolTip.Tip="{Binding GammaToolTip}" />
-                    <view:LabeledInput Label="气体常数：" Input="{Binding Rg, Mode=TwoWay}"
-                                       ToolTip.Tip="{Binding RgToopTip}" />
+                    <view:LabeledInput Label="摩尔质量：" Input="{Binding MolecularWeight, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding MolecularWeightToolTip}" />
+                    <view:LabeledInput Label="定压比热容：" Input="{Binding Cp, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding CpToolTip}" />
                     <view:LabeledInput Label="进口总压：" Input="{Binding TotalPressure, Mode=TwoWay}"
                                        ToolTip.Tip="{Binding TotalPressureToopTip}" />
                     <view:LabeledInput Label="进口总温：" Input="{Binding TotalTemperature, Mode=TwoWay}"
