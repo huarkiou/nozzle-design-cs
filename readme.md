@@ -7,7 +7,7 @@
 | 仓库 | 说明 |
 |------|------|
 | [nozzle-design-rs](https://github.com/huarkiou/nozzle-design-rs) | Rust 计算后端，基于特征线法 (MOC) 的喷管设计引擎 |
-| [WavefrontObjViewer](https://github.com/huarkiou/WavefrontObjViewer) | 三维 OBJ 模型查看器，用于喷管型面预览 |
+| [objviewer](https://github.com/huarkiou/objviewer) | 三维 OBJ 模型查看器，用于喷管型面预览 |
 
 ---
 
@@ -35,7 +35,7 @@
 - 生成 TOML 配置文件并调用 Rust 后端执行计算
 - 实时预览二维喷管型面与截面轮廓
 - 导出计算结果（`.dat` 格式用于 UG NX，`.obj` 格式用于三维查看）
-- 调用 `WavefrontObjViewer.exe` 进行三维模型预览
+- 调用 `objviewer.exe` 进行三维模型预览
 
 ## 依赖关系
 
@@ -58,7 +58,7 @@
 |-----------|------|
 | `otn.exe` | 二维轴对称/平面最大推力喷管型面设计 |
 | `sltn.exe` | 三维流线追踪喷管设计 |
-| `WavefrontObjViewer.exe` | 三维 OBJ 模型预览（[WavefrontObjViewer](https://github.com/huarkiou/WavefrontObjViewer)） |
+| `objviewer.exe` | 三维 OBJ 模型预览（[objviewer](https://github.com/huarkiou/objviewer)） |
 
 这些文件应放置在 `./tools/` 目录下（Release 模式），或在 Debug 模式下通过硬编码路径指向 `nozzle-design-rs` 的编译输出目录。
 
@@ -290,7 +290,7 @@ Release 发布版本期望以下文件结构（参见 `assets/file-tree.png`）�
 ├── tools/
 │   ├── otn.exe                   # 最大推力喷管计算程序
 │   ├── sltn.exe                  # 流线追踪喷管计算程序
-│   └── WavefrontObjViewer.exe    # 三维模型预览工具
+│   └── objviewer.exe              # 三维模型预览工具
 └── 其他依赖文件...
 ```
 

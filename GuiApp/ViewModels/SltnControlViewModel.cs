@@ -309,9 +309,9 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
         var process = new Process();
         process.StartInfo.WorkingDirectory = _currentDirectory.FullName;
 #if DEBUG
-        process.StartInfo.FileName = @"D:\Apps\study\nozzle_design\obj_viewer\WavefrontObjViewer.exe";
+        process.StartInfo.FileName = @"D:\Apps\study\nozzle_design\obj_viewer\objviewer.exe";
 #else
-        process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "WavefrontObjViewer.exe");
+        process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "objviewer.exe");
 #endif
         if (!File.Exists(process.StartInfo.FileName))
         {

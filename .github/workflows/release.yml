@@ -13,7 +13,7 @@ on:
         type: boolean
         default: true
       include_obj_viewer:
-        description: 'Download WavefrontObjViewer from its latest release'
+        description: 'Download objviewer from its latest release'
         required: true
         type: boolean
         default: true
@@ -81,34 +81,28 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      # ── 下载 WavefrontObjViewer ────────────────────────────────────────
-      - name: Download WavefrontObjViewer (latest release)
+      # ── 下载 objviewer ─────────────────────────────────────────────────
+      - name: Download objviewer (latest release)
         if: ${{ inputs.include_obj_viewer }}
         shell: pwsh
         run: |
-          $repo = "huarkiou/WavefrontObjViewer"
+          $repo = "huarkiou/objviewer"
           $release = gh release view --repo $repo --json tagName,assets | ConvertFrom-Json
-          Write-Host "Latest WavefrontObjViewer release: $($release.tagName)"
+          Write-Host "Latest objviewer release: $($release.tagName)"
 
-          # Try archive first, fall back to individual .exe
-          $archive = $release.assets | Where-Object { $_.name -like "*.zip" -or $_.name -like "*.7z" } | Select-Object -First 1
-          $exe = $release.assets | Where-Object { $_.name -like "*.exe" } | Select-Object -First 1
+          $zip = $release.assets | Where-Object { $_.name -like "*windows*.zip" } | Select-Object -First 1
 
-          if ($archive) {
-            gh release download $release.tagName --repo $repo --pattern $archive.name --dir objviewer-dl
-            Write-Host "Downloaded: $($archive.name)"
-            Expand-Archive -Path "objviewer-dl\$($archive.name)" -DestinationPath objviewer-dl -Force
-          } elseif ($exe) {
-            gh release download $release.tagName --repo $repo --pattern $exe.name --dir objviewer-dl
-            Write-Host "Downloaded: $($exe.name)"
+          if ($zip) {
+            gh release download $release.tagName --repo $repo --pattern $zip.name --dir objviewer-dl
+            Expand-Archive -Path "objviewer-dl\$($zip.name)" -DestinationPath objviewer-dl -Force
           } else {
-            Write-Warning "No WavefrontObjViewer assets found - skipping"
+            Write-Warning "No objviewer Windows asset found - skipping"
           }
 
-          $exeFile = Get-ChildItem objviewer-dl -Filter *.exe -Recurse | Select-Object -First 1
+          $exeFile = Get-ChildItem objviewer-dl -Filter objviewer.exe -Recurse | Select-Object -First 1
           if ($exeFile) {
-            Copy-Item $exeFile.FullName publish\GuiApp\tools\WavefrontObjViewer.exe
-            Write-Host "Copied WavefrontObjViewer.exe"
+            Copy-Item $exeFile.FullName publish\GuiApp\tools\objviewer.exe
+            Write-Host "Copied objviewer.exe"
           }
         env:
           GH_TOKEN: ${{ github.token }}
