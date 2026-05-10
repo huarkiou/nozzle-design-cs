@@ -1,0 +1,137 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version tag (e.g. v1.0.0)'
+        required: true
+        type: string
+      include_rust_tools:
+        description: 'Download otn.exe / sltn.exe from nozzle-design-rs latest release'
+        required: true
+        type: boolean
+        default: true
+      include_obj_viewer:
+        description: 'Download WavefrontObjViewer from its latest release'
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── .NET Native AOT 发布 ──────────────────────────────────────────
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Publish GuiApp (Native AOT)
+        run: dotnet publish GuiApp -c Release -o publish/GuiApp
+
+      # ── 创建 tools 目录 ────────────────────────────────────────────────
+      - name: Create tools directory
+        shell: pwsh
+        run: New-Item -ItemType Directory -Path publish\GuiApp\tools -Force
+
+      # ── 下载 nozzle-design-rs 预编译工具 ──────────────────────────────
+      # nozzle-design-rs Release 资产命名格式:
+      #   nozzle-design-rs-{VERSION}-x86_64-pc-windows-msvc.zip  (内含 otn.exe + sltn.exe)
+      - name: Download otn.exe / sltn.exe from nozzle-design-rs
+        if: ${{ inputs.include_rust_tools }}
+        shell: pwsh
+        run: |
+          $repo = "huarkiou/nozzle-design-rs"
+          $release = gh release view --repo $repo --json tagName,assets | ConvertFrom-Json
+          Write-Host "Latest nozzle-design-rs release: $($release.tagName)"
+
+          $asset = $release.assets | Where-Object { $_.name -like "nozzle-design-rs-*-x86_64-pc-windows-msvc.zip" } | Select-Object -First 1
+
+          if ($asset) {
+            gh release download $release.tagName --repo $repo --pattern $asset.name --dir rs-tools
+            Expand-Archive -Path "rs-tools\$($asset.name)" -DestinationPath rs-tools -Force
+
+            $otnExe = Get-ChildItem rs-tools -Filter otn.exe -Recurse | Select-Object -First 1
+            $sltnExe = Get-ChildItem rs-tools -Filter sltn.exe -Recurse | Select-Object -First 1
+
+            if ($otnExe) {
+              Copy-Item $otnExe.FullName publish\GuiApp\tools\otn.exe
+              Write-Host "Extracted otn.exe"
+            } else { Write-Warning "otn.exe not found in archive" }
+
+            if ($sltnExe) {
+              Copy-Item $sltnExe.FullName publish\GuiApp\tools\sltn.exe
+              Write-Host "Extracted sltn.exe"
+            } else { Write-Warning "sltn.exe not found in archive" }
+          } else {
+            Write-Warning "nozzle-design-rs Windows asset not found in release"
+          }
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      # ── 下载 WavefrontObjViewer ────────────────────────────────────────
+      - name: Download WavefrontObjViewer (latest release)
+        if: ${{ inputs.include_obj_viewer }}
+        shell: pwsh
+        run: |
+          $repo = "huarkiou/WavefrontObjViewer"
+          $release = gh release view --repo $repo --json tagName,assets | ConvertFrom-Json
+          Write-Host "Latest WavefrontObjViewer release: $($release.tagName)"
+
+          # Try archive first, fall back to individual .exe
+          $archive = $release.assets | Where-Object { $_.name -like "*.zip" -or $_.name -like "*.7z" } | Select-Object -First 1
+          $exe = $release.assets | Where-Object { $_.name -like "*.exe" } | Select-Object -First 1
+
+          if ($archive) {
+            gh release download $release.tagName --repo $repo --pattern $archive.name --dir objviewer-dl
+            Write-Host "Downloaded: $($archive.name)"
+            Expand-Archive -Path "objviewer-dl\$($archive.name)" -DestinationPath objviewer-dl -Force
+          } elseif ($exe) {
+            gh release download $release.tagName --repo $repo --pattern $exe.name --dir objviewer-dl
+            Write-Host "Downloaded: $($exe.name)"
+          } else {
+            Write-Warning "No WavefrontObjViewer assets found - skipping"
+          }
+
+          $exeFile = Get-ChildItem objviewer-dl -Filter *.exe -Recurse | Select-Object -First 1
+          if ($exeFile) {
+            Copy-Item $exeFile.FullName publish\GuiApp\tools\WavefrontObjViewer.exe
+            Write-Host "Copied WavefrontObjViewer.exe"
+          }
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      # ── 打包 ───────────────────────────────────────────────────────────
+      - name: Create release archive
+        shell: pwsh
+        run: |
+          $archive = "nozzle-design-cs_${{ inputs.version }}_win-x64.zip"
+          Compress-Archive -Path publish\GuiApp\* -DestinationPath $archive
+          Write-Host "Archive created: $archive"
+          "archive_name=$archive" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      # ── 创建 GitHub Release ────────────────────────────────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version }}
+          name: ${{ inputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            nozzle-design-cs_${{ inputs.version }}_win-x64.zip
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
