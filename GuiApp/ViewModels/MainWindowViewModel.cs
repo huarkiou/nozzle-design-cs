@@ -36,7 +36,7 @@ public partial class MainWindowViewModel(
     }
 
     [RelayCommand]
-    public static async Task ShowCopyright()
+    public async Task ShowCopyright()
     {
         await MessageBoxManager.GetMessageBoxStandard("说明", Copyright).ShowAsync();
     }
