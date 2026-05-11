@@ -4,10 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:GuiApp.ViewModels"
              xmlns:view="clr-namespace:GuiApp.Views"
-             xmlns:viewModels="clr-namespace:GuiApp.ViewModels"
+             xmlns:models="using:GuiApp.Models"
              x:DataType="vm:OtnControlViewModel"
              mc:Ignorable="d" d:DesignWidth="1072" d:DesignHeight="603"
-             x:Class="GuiApp.Views.OtnControl">
+             x:Class="GuiApp.Views.OtnControl"
+             x:Name="OtnControlRoot">
     <UserControl.DataContext>
         <vm:OtnControlViewModel />
     </UserControl.DataContext>
@@ -43,7 +44,21 @@
                     <view:LabeledInput Label="摩尔质量：" Input="{Binding MolecularWeight, Mode=TwoWay}"
                                        ToolTip.Tip="{Binding MolecularWeightToolTip}" />
                     <view:LabeledInput Label="定压比热容：" Input="{Binding Cp, Mode=TwoWay}"
-                                       ToolTip.Tip="{Binding CpToolTip}" />
+                                       ToolTip.Tip="{Binding CpToolTip}"
+                                       IsVisible="{Binding !CpSegments.IsActive}" />
+                    <!-- 分段多项式比热容 -->
+                    <StackPanel Orientation="Horizontal" Spacing="5"
+                                IsVisible="{Binding CpSegments.IsActive}">
+                        <TextBlock Text="{Binding CpSegments.SummaryText}" VerticalAlignment="Center"
+                                   FontWeight="Bold" />
+                        <Button Name="EditCpSegments" Content="编辑..."
+                                Width="56" Height="28"
+                                VerticalContentAlignment="Center" Padding="6,2" />
+                    </StackPanel>
+                    <Button Name="EnableCpSegments" Content="✚ 自定义分段多项式比热容..."
+                            Width="220" Height="32"
+                            VerticalContentAlignment="Center" Padding="8,4"
+                            IsVisible="{Binding !CpSegments.IsActive}" />
                     <view:LabeledInput Label="进口总压：" Input="{Binding TotalPressure, Mode=TwoWay}"
                                        ToolTip.Tip="{Binding TotalPressureToopTip}" />
                     <view:LabeledInput Label="进口总温：" Input="{Binding TotalTemperature, Mode=TwoWay}"

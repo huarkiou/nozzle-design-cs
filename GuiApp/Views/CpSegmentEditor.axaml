@@ -1,0 +1,57 @@
+<Window xmlns="https://github.com/avaloniaui"
+         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         xmlns:vm="using:GuiApp.ViewModels"
+         xmlns:models="using:GuiApp.Models"
+         xmlns:sp="using:ScottPlot.Avalonia"
+         x:DataType="vm:CpSegmentViewModel"
+         x:Class="GuiApp.Views.CpSegmentEditor"
+         x:Name="CpEditorRoot"
+         Title="分段多项式比热容编辑器"
+         Width="780" Height="600"
+         CanResize="True">
+    <DockPanel Margin="10">
+        <!-- 底部按钮栏 -->
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="5"
+                    HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="添加区段" Command="{Binding AddSegmentCommand}"
+                    Width="80" Height="30" VerticalContentAlignment="Center" />
+            <Button Content="清空" Command="{Binding ClearAllCommand}"
+                    Width="60" Height="30" VerticalContentAlignment="Center" />
+            <Button Content="确定" Name="OkButton"
+                    Width="60" Height="30" VerticalContentAlignment="Center" IsDefault="True" />
+        </StackPanel>
+
+        <Grid RowDefinitions="Auto,Auto,*">
+            <!-- 列标题 -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="5" Margin="0,0,0,4">
+                <TextBlock Text="T_min(K)" Width="60" TextAlignment="Center" FontWeight="Bold" />
+                <TextBlock Text="T_max(K)" Width="60" TextAlignment="Center" FontWeight="Bold" />
+                <TextBlock Text="正幂次系数 (T⁰,T¹,...)" Width="230" TextAlignment="Center" FontWeight="Bold" />
+                <TextBlock Text="负幂次系数 (T⁻¹,...)" Width="150" TextAlignment="Center" FontWeight="Bold" />
+                <TextBlock Width="54" />
+            </StackPanel>
+
+            <!-- 区段列表（最大可见 4 行后滚动） -->
+            <ScrollViewer Grid.Row="1" MaxHeight="120">
+                <ItemsControl ItemsSource="{Binding Segments}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:CpSegmentModel">
+                            <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,2,0,2">
+                                <TextBox Text="{Binding TMin}" Width="60" VerticalContentAlignment="Center" />
+                                <TextBox Text="{Binding TMax}" Width="60" VerticalContentAlignment="Center" />
+                                <TextBox Text="{Binding PosCoefficientsString}" Width="230" VerticalContentAlignment="Center" />
+                                <TextBox Text="{Binding NegCoefficientsString}" Width="150" VerticalContentAlignment="Center" />
+                                <Button Content="✕" Width="28" Height="28" Padding="0"
+                                        Command="{Binding #CpEditorRoot.DataContext.RemoveSegmentCommand}"
+                                        CommandParameter="{Binding}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Cp-T 预览图 -->
+            <sp:AvaPlot Grid.Row="2" Name="CpPlot" Margin="0,6,0,0" />
+        </Grid>
+    </DockPanel>
+</Window>

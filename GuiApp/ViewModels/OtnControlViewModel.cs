@@ -115,6 +115,9 @@ public partial class OtnControlViewModel : ViewModelBase
     public partial bool CanRunOtn { get; set; } = true;
     public AvaPlot Displayer2D { get; } = new();
 
+    // Cp Segments
+    public CpSegmentViewModel CpSegments { get; } = new();
+
 
     [RelayCommand(CanExecute = nameof(CanRunOtn))]
     public async Task RunOtn()
@@ -195,8 +198,12 @@ public partial class OtnControlViewModel : ViewModelBase
             ((TomlTable)otnConfigs["Geometry"])["length"] = Length;
             ((TomlTable)otnConfigs["Geometry"])["height_e"] = TargetOutletHeight;
             ((TomlTable)otnConfigs["Geometry"])["width"] = Width;
-            ((TomlTable)otnConfigs["Material"])["molecular_weight"] = MolecularWeight;
-            ((TomlTable)otnConfigs["Material"])["cp"] = Cp;
+            var materialTable = (TomlTable)otnConfigs["Material"];
+            materialTable["molecular_weight"] = MolecularWeight;
+            if (!CpSegments.IsActive)
+            {
+                materialTable["cp"] = Cp;
+            }
             ((TomlTable)otnConfigs["Inlet"])["p_total"] = TotalPressure;
             ((TomlTable)otnConfigs["Inlet"])["T_total"] = TotalTemperature;
             ((TomlTable)otnConfigs["Inlet"])["Ma"] = MachNumber;
@@ -206,8 +213,12 @@ public partial class OtnControlViewModel : ViewModelBase
             ((TomlTable)otnConfigs["Outlet"])["p_ambient"] = PressureAmbient;
             ((TomlTable)otnConfigs["IO"])["output_prefix"] = OutputPrefix;
         }
-        await File.WriteAllTextAsync(Path.Combine(_currentDirectory.FullName, ConfigFileName),
-            Toml.FromModel(otnConfigs));
+        var tomlOutput = Toml.FromModel(otnConfigs);
+        if (CpSegments.IsActive)
+        {
+            tomlOutput += "\n" + CpSegments.BuildTomlString();
+        }
+        await File.WriteAllTextAsync(Path.Combine(_currentDirectory.FullName, ConfigFileName), tomlOutput);
 
         string output = string.Empty;
         var process = new Process();

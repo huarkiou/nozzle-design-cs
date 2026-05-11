@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MsBox.Avalonia;
@@ -12,11 +14,26 @@ public partial class MainWindowViewModel(
 {
     private const int OtnIndex = 0;
     private const int SltnIndex = 1;
-    private const string Copyright = """
-                                     作者：Huarkiou
-                                     个人主页：https://github.com/huarkiou
-                                     修改时间：2025-05-02
-                                     """;
+
+    private static string BuildTime
+    {
+        get
+        {
+            try
+            {
+                var path = Environment.ProcessPath;
+                if (path is not null)
+                    return File.GetLastWriteTime(path).ToString("yyyy-MM-dd HH:mm");
+            }
+            catch { }
+            return "未知";
+        }
+    }
+
+    private static string Copyright =>
+        $"作者：Huarkiou\n" +
+        $"GitHub：github.com/huarkiou\n" +
+        $"编译时间：{BuildTime}";
 
     [ObservableProperty]
     public partial int CurrentIndex { get; set; }
@@ -38,6 +55,6 @@ public partial class MainWindowViewModel(
     [RelayCommand]
     public async Task ShowCopyright()
     {
-        await MessageBoxManager.GetMessageBoxStandard("说明", Copyright).ShowAsync();
+        await MessageBoxManager.GetMessageBoxStandard("关于", Copyright).ShowAsync();
     }
 }

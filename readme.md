@@ -167,7 +167,7 @@ OTN 计算完成后，通过 CommunityToolkit.Mvvm 的 `WeakReferenceMessenger` 
 | | 目标出口高度 | NaN = 最大推力（无出口高度约束） |
 | | 横向宽度 | 仅二维平面问题 |
 | 工质 | 摩尔质量 | kg/kmol，默认 28.968（空气） |
-| | 定压比热 Cp | J/(kg·K)，NaN = NASA 9 系数变比热空气模型 |
+| | 定压比热 Cp | J/(kg·K)；NaN = NASA 9 系数变比热；常数 = 常比热；配合 cp_segments = 分段多项式变比热 |
 | 来流 | 总压 / 总温 | Pa / K |
 | | 马赫数 | 必须 ≥ 1 |
 | 喉部 | 过渡圆弧半径 | 米 |
@@ -327,7 +327,28 @@ width = 1.0                  # 横向宽度 (仅平面)
 
 [Material]
 molecular_weight = 28.968    # 摩尔质量 (kg/kmol)
-cp = nan                     # 定压比热，nan = NASA 9 系数变比热
+
+# ── 比热容支持三种模式（三选一）──
+# 模式 1: 内置 NASA 9 系数变比热空气模型（推荐）
+cp = nan                     # 设 nan 触发内置 Material::air_nasa9piecewise_polynomial()
+
+# 模式 2: 常数比热容
+# cp = 1004.675               # J/(kg·K)，γ=1.4 空气
+
+# 模式 3: 自定义分段多项式变比热容
+# cp 不设置（或设为任意值），配合 cp_segments 使用
+# [[Material.cp_segments]]
+# t_min = 200.0
+# t_max = 1000.0
+# # pos_coefficients[0]=T⁰ (常数项), [1]=T¹, [2]=T², [3]=T³, [4]=T⁴
+# pos_coefficients = [1437.799, -1.653609, 0.003062254, -2.279138e-06, 6.272365e-10]
+# # neg_coefficients[0]=T⁻¹, [1]=T⁻²
+# neg_coefficients = [-56496.26, 2898903.0]
+# [[Material.cp_segments]]
+# t_min = 1000.0
+# t_max = 6000.0
+# pos_coefficients = [1476.665, -0.06138349, 2.027963e-05, -3.075525e-09, 1.888054e-13]
+# neg_coefficients = [-361053.2, 69324940.0]
 
 [Inlet]
 p_total = 800000.0           # 总压 (Pa)
@@ -345,6 +366,48 @@ p_ambient = 7000.0           # 出口背压 (Pa)
 [IO]
 output_prefix = "guiapp_"    # 输出文件前缀
 ```
+
+### Material 配置说明
+
+Material 支持三种比热容指定方式，与 Rust 后端 `Material` 反序列化逻辑对应：
+
+| 模式 | `cp` 字段 | `cp_segments` | 后端行为 |
+|------|-----------|---------------|---------|
+| **NASA 9 变比热** | `nan` | 无 | 使用内置 `Material::air_nasa9piecewise_polynomial()`，根据温度自动计算 Cp |
+| **常数比热** | 数值（如 `1004.675`） | 无 | 使用 `Cp::Constant`，γ = 1 + R / Cp，R = 8314.46 / molecular_weight |
+| **分段多项式** | 无（或任意值，被忽略） | 有 | 使用 `Cp::from_piecewise_segments`，每个温度区间独立多项式 |
+
+#### 分段多项式格式
+
+当使用 `cp_segments` 时（模式 3），每个温度段定义如下：
+
+```toml
+[Material]
+molecular_weight = 28.968
+
+[[Material.cp_segments]]
+t_min = 200.0      # 温度区间下限 (K)
+t_max = 1000.0     # 温度区间上限 (K)
+# pos_coefficients: 正次幂系数，[0]=T⁰, [1]=T¹, [2]=T², [3]=T³, [4]=T⁴
+pos_coefficients = [1437.799, -1.653609, 0.003062254, -2.279138e-06, 6.272365e-10]
+# neg_coefficients: 负次幂系数，[0]=T⁻¹, [1]=T⁻², [2]=T⁻³, ...
+neg_coefficients = [-56496.26, 2898903.0]
+```
+
+**系数索引说明：**
+
+- `pos_coefficients[0]` = T⁰（常数项），`[1]` = T¹，`[2]` = T²，以此类推
+- `neg_coefficients[0]` = T⁻¹，`[1]` = T⁻²，以此类推
+- 每个 `cp_segment` 的常数项由自身的 `pos_coefficients[0]` 提供，**不再使用顶层 `cp` 字段**
+
+**Cp(T) 计算公式：**
+
+```
+Cp(T) = pos_coefficients[0] + pos_coefficients[1]·T + pos_coefficients[2]·T² + ...
+      + neg_coefficients[0]/T + neg_coefficients[1]/T² + ...
+```
+
+> **注意**：旧格式曾使用顶层 `cp` 字段作为所有分段的共享常数项，且 `pos_coefficients` 从 T¹ 开始。当前 Rust 后端优先检查 `pos_coefficients[0]` 是否存在——若存在则作为本段常数项；若为空才回退到顶层 `cp`（向后兼容）。
 
 ### SLTN 配置（由 GUI 自动生成）
 
