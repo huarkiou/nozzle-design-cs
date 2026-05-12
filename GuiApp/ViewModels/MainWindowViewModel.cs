@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -23,17 +25,65 @@ public partial class MainWindowViewModel(
             {
                 var path = Environment.ProcessPath;
                 if (path is not null)
-                    return File.GetLastWriteTime(path).ToString("yyyy-MM-dd HH:mm");
+                {
+                    var utcTime = File.GetLastWriteTimeUtc(path);
+                    var beijingTz = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
+                    var beijingTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, beijingTz);
+                    return beijingTime.ToString("yyyy-MM-dd HH:mm") + " CST (UTC+8)";
+                }
             }
             catch { }
             return "未知";
         }
     }
 
-    private static string Copyright =>
-        $"作者：Huarkiou\n" +
-        $"GitHub：github.com/huarkiou\n" +
-        $"编译时间：{BuildTime}";
+    private static string BuildConfiguration => BuildInfo.Configuration;
+
+    private static string TargetFrameworkDisplay
+    {
+        get
+        {
+            var tf = BuildInfo.TargetFramework; // e.g., "net10.0"
+            return tf.StartsWith("net") ? ".NET " + tf[3..] : tf;
+        }
+    }
+
+    private static string GitHash => BuildInfo.GitHash;
+
+    private static string PublishMode
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (string.Equals(BuildInfo.PublishAot, "true", StringComparison.OrdinalIgnoreCase))
+                parts.Add("Native AOT");
+            if (string.Equals(BuildInfo.SelfContained, "true", StringComparison.OrdinalIgnoreCase))
+                parts.Add("Self-contained");
+            if (string.Equals(BuildInfo.PublishTrimmed, "true", StringComparison.OrdinalIgnoreCase))
+                parts.Add("Trimmed");
+            return parts.Count > 0 ? string.Join(" | ", parts) : "Framework-dependent";
+        }
+    }
+
+    private static string RuntimeVersion => RuntimeInformation.FrameworkDescription;
+
+    private static string OSVersion => RuntimeInformation.OSDescription;
+
+    private static string About
+    {
+        get
+        {
+            return "作者：Huarkiou\n" +
+                   "GitHub：github.com/huarkiou\n" +
+                   "构建配置：" + BuildConfiguration + "\n" +
+                   "目标框架：" + TargetFrameworkDisplay + "\n" +
+                   "Git 提交：" + GitHash + "\n" +
+                   "发布模式：" + PublishMode + "\n" +
+                   "运行时版本：" + RuntimeVersion + "\n" +
+                   "操作系统：" + OSVersion + "\n" +
+                   "编译时间：" + BuildTime;
+        }
+    }
 
     [ObservableProperty]
     public partial int CurrentIndex { get; set; }
@@ -55,6 +105,6 @@ public partial class MainWindowViewModel(
     [RelayCommand]
     public async Task ShowCopyright()
     {
-        await MessageBoxManager.GetMessageBoxStandard("关于", Copyright).ShowAsync();
+        await MessageBoxManager.GetMessageBoxStandard("关于", About).ShowAsync();
     }
 }
