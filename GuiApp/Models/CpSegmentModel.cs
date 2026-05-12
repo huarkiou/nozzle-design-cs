@@ -30,22 +30,7 @@ public partial class CpSegmentModel : ObservableObject
     public string PosCoefficientsString
     {
         get => string.Join(", ", PosCoefficients);
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                PosCoefficients = [];
-                return;
-            }
-            var parts = value.Split(',', System.StringSplitOptions.TrimEntries);
-            var coeffs = new double[parts.Length];
-            for (int i = 0; i < parts.Length; i++)
-            {
-                if (!double.TryParse(parts[i], out coeffs[i]))
-                    coeffs[i] = 0.0;
-            }
-            PosCoefficients = coeffs;
-        }
+        set => PosCoefficients = ParseCoefficients(value);
     }
 
     /// <summary>
@@ -55,22 +40,22 @@ public partial class CpSegmentModel : ObservableObject
     public string NegCoefficientsString
     {
         get => string.Join(", ", NegCoefficients);
-        set
+        set => NegCoefficients = ParseCoefficients(value);
+    }
+
+    private static double[] ParseCoefficients(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return [];
+
+        var parts = value.Split(',', System.StringSplitOptions.TrimEntries);
+        var coeffs = new double[parts.Length];
+        for (int i = 0; i < parts.Length; i++)
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                NegCoefficients = [];
-                return;
-            }
-            var parts = value.Split(',', System.StringSplitOptions.TrimEntries);
-            var coeffs = new double[parts.Length];
-            for (int i = 0; i < parts.Length; i++)
-            {
-                if (!double.TryParse(parts[i], out coeffs[i]))
-                    coeffs[i] = 0.0;
-            }
-            NegCoefficients = coeffs;
+            if (!double.TryParse(parts[i], out coeffs[i]))
+                coeffs[i] = 0.0;
         }
+        return coeffs;
     }
 
     /// <summary>

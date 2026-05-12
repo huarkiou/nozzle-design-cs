@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using Corelib.Geometry;
+using Serilog;
 
 namespace GuiApp.ViewModels;
 
@@ -41,8 +42,9 @@ public partial class CrossSectionPolygonViewModel : ClosedCurveViewModel
         {
             _vertices = PointExtensions.LoadTxt(value);
         }
-        catch (System.Exception)
+        catch (System.Exception ex)
         {
+            Log.Logger.Warning(ex, "Failed to load vertices from file: {FilePath}", value);
             _vertices = null;
             return;
         }

@@ -52,16 +52,16 @@ public class SuperEllipse(double x0, double y0, double a, double b, double power
         for (int i = 0; i < n; ++i)
         {
             double theta = i * deltaTheta;
-            points[i].X = x0 +
-                          A * double.Pow(double.Abs(double.Cos(theta)), 2 / Power)
-                            * double.Sign(double.Cos(theta)) * double.Cos(Alpha) -
-                          B * double.Pow(double.Abs(double.Sin(theta)), 2 / Power)
-                            * double.Sign(double.Sin(theta)) * double.Sin(Alpha);
-            points[i].Y = y0 +
-                          A * double.Pow(double.Abs(double.Cos(theta)), 2 / Power)
-                            * double.Sign(double.Cos(theta)) * double.Sin(Alpha) +
-                          B * double.Pow(double.Abs(double.Sin(theta)), 2 / Power)
-                            * double.Sign(double.Sin(theta)) * double.Cos(Alpha);
+            points[i] = new Point(x0 +
+                                  A * double.Pow(double.Abs(double.Cos(theta)), 2 / Power)
+                                    * double.Sign(double.Cos(theta)) * double.Cos(Alpha) -
+                                  B * double.Pow(double.Abs(double.Sin(theta)), 2 / Power)
+                                    * double.Sign(double.Sin(theta)) * double.Sin(Alpha),
+                                  y0 +
+                                  A * double.Pow(double.Abs(double.Cos(theta)), 2 / Power)
+                                    * double.Sign(double.Cos(theta)) * double.Sin(Alpha) +
+                                  B * double.Pow(double.Abs(double.Sin(theta)), 2 / Power)
+                                    * double.Sign(double.Sin(theta)) * double.Cos(Alpha));
         }
 
         return points;

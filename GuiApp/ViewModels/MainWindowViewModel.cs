@@ -3,17 +3,31 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MsBox.Avalonia;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Enums;
+using Serilog;
 
 namespace GuiApp.ViewModels;
 
-public partial class MainWindowViewModel(
-    OtnControlViewModel otnControlViewModel,
-    SltnControlViewModel sltnControlViewModel)
-    : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase
 {
+    private readonly OtnControlViewModel _otn;
+    private readonly SltnControlViewModel _sltn;
+    private readonly ILogger _logger;
+
+    public MainWindowViewModel(
+        OtnControlViewModel otnControlViewModel,
+        SltnControlViewModel sltnControlViewModel)
+    {
+        _otn = otnControlViewModel;
+        _sltn = sltnControlViewModel;
+        _logger = Log.ForContext<MainWindowViewModel>();
+    }
+
     private const int OtnIndex = 0;
     private const int SltnIndex = 1;
 
@@ -32,7 +46,10 @@ public partial class MainWindowViewModel(
                     return beijingTime.ToString("yyyy-MM-dd HH:mm") + " CST (UTC+8)";
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Log.Logger.Warning(ex, "Failed to determine build time");
+            }
             return "未知";
         }
     }
@@ -94,10 +111,10 @@ public partial class MainWindowViewModel(
         switch (CurrentIndex)
         {
             case OtnIndex:
-                await otnControlViewModel.ExportResultAsync();
+                await _otn.ExportResultAsync();
                 break;
             case SltnIndex:
-                await sltnControlViewModel.ExportResultAsync();
+                await _sltn.ExportResultAsync();
                 break;
         }
     }
@@ -105,6 +122,13 @@ public partial class MainWindowViewModel(
     [RelayCommand]
     public async Task ShowCopyright()
     {
-        await MessageBoxManager.GetMessageBoxStandard("关于", About).ShowAsync();
+        var msBox = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+        {
+            ContentTitle = "关于",
+            ContentMessage = About,
+            MinWidth = 480,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+        });
+        await msBox.ShowAsync();
     }
 }

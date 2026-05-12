@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,20 +11,19 @@ using Corelib.Geometry;
 using GuiApp.Models;
 using MsBox.Avalonia;
 using ScottPlot;
-using ScottPlot.Avalonia;
 using Tomlyn;
 using Tomlyn.Model;
 using FilePickerFileTypes = GuiApp.Models.FilePickerFileTypes;
 
 namespace GuiApp.ViewModels;
 
-public partial class OtnControlViewModel : ViewModelBase
+public partial class OtnControlViewModel : NozzleControlViewModelBase
 {
-    private DirectoryInfo? _currentDirectory;
-    private const string ConfigFileName = "otn_config.toml";
     private const string GeoResultFileName = "geo_all.dat";
     private const string FieldResultFileName = "field_data.txt";
     private const string OutputPrefix = "guiapp_";
+
+    protected override string ConfigFileName => "otn_config.toml";
 
     // MOC Control
     [ObservableProperty]
@@ -39,15 +37,15 @@ public partial class OtnControlViewModel : ViewModelBase
     public static string IsAxisymmetricToolTip => "轴对称喷管/二元喷管";
 
     [ObservableProperty]
-    public partial double Epsilon { get; set; } = 1e-6;
+    public partial double Epsilon { get; set; } = 1e-5;
     public static string EpsilonToolTip => "允许误差\n注意：不应大于1e-4，一般建议取在范围1e-4至1e-8之间";
 
     [ObservableProperty]
-    public partial int NumCorrectionMax { get; set; } = 40;
+    public partial int NumCorrectionMax { get; set; } = 20;
     public static string NumCorrectionMaxToolTip => "欧拉预估校正迭代过程的最大校正次数";
 
     [ObservableProperty]
-    public partial int NumInletDivision { get; set; } = 101;
+    public partial int NumInletDivision { get; set; } = 61;
     public static string NumInletDivisionToolTip => "入口边界初始网格点数\n注意：若计算不收敛可尝试增大此参数";
 
     // Geometry
@@ -75,7 +73,7 @@ public partial class OtnControlViewModel : ViewModelBase
     public static string MolecularWeightToolTip => "摩尔质量\n单位：kg/kmol";
 
     [ObservableProperty]
-    public partial double Cp { get; set; } = double.NaN;
+    public partial double Cp { get; set; } = 1004.0;
     public static string CpToolTip => "定压比热容\n单位：J/(kg·K)\n设为 NaN 则使用 NASA 9系数变比热空气模型";
 
     [ObservableProperty]
@@ -113,7 +111,6 @@ public partial class OtnControlViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RunOtnCommand))]
     public partial bool CanRunOtn { get; set; } = true;
-    public AvaPlot Displayer2D { get; } = new();
 
     // Cp Segments
     public CpSegmentViewModel CpSegments { get; } = new();
@@ -124,9 +121,7 @@ public partial class OtnControlViewModel : ViewModelBase
     {
         CanRunOtn = false;
 
-        _currentDirectory?.Delete(true);
-        _currentDirectory = Directory.CreateTempSubdirectory("guiapp-otn-");
-        Console.WriteLine("{0}", _currentDirectory.FullName);
+        PrepareTempDirectory("guiapp-otn-");
 
         var otnConfigs = Toml.ToModel("""
                                       ###### 特征线法参数 ######
@@ -136,18 +131,18 @@ public partial class OtnControlViewModel : ViewModelBase
                                       # false代表二维平面问题，true代表二维轴对称问题
                                       axisymmetric = true
                                       # 残差小于eps视为相等/收敛
-                                      eps = 1e-6
+                                      eps = 1e-5
                                       # 欧拉预估校正迭代的最大校正次数
-                                      n_correction_max = 40
+                                      n_correction_max = 20
                                       # 入口边界划分网格点数 《===若计算发散可增大此参数重新尝试
-                                      n_inlet = 101
+                                      n_inlet = 61
 
                                       ###### 几何约束 ######
                                       [Geometry]
                                       # 喷管进口高度(二维平面)或者半径(轴对称)(m)
                                       height = 1
                                       # 喷管目标长度(m)
-                                      length = 6
+                                      length = 4
                                       # 喷管目标出口高度(m) *若以最大推力为目标，对出口高度没有约束则设置为nan*
                                       height_e = nan
                                       # 喷管的横向宽度(仅二维平面)(m)
@@ -158,7 +153,7 @@ public partial class OtnControlViewModel : ViewModelBase
                                       # 摩尔质量 (kg/kmol)
                                       molecular_weight = 28.968
                                       # 定压比热容 (J/(kg·K))，常数；设为 nan 则使用 NASA 9系数变比热空气模型
-                                      cp = nan
+                                      cp = 1004
 
                                       ###### 进口气流参数 ######
                                       [Inlet]
@@ -218,39 +213,10 @@ public partial class OtnControlViewModel : ViewModelBase
         {
             tomlOutput += "\n" + CpSegments.BuildTomlString();
         }
-        await File.WriteAllTextAsync(Path.Combine(_currentDirectory.FullName, ConfigFileName), tomlOutput);
+        await WriteConfigFileAsync(tomlOutput);
 
-        string output = string.Empty;
-        var process = new Process();
-        process.StartInfo.WorkingDirectory = _currentDirectory.FullName;
-#if DEBUG
-        process.StartInfo.FileName = @"D:\Projects\Program\nozzle-design-rs\target\release\otn.exe";
-#else
-        process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "otn.exe");
-#endif
-        if (!File.Exists(process.StartInfo.FileName))
-        {
-            await MessageBoxManager.GetMessageBoxStandard("错误", $"文件缺失：{process.StartInfo.FileName}").ShowAsync();
-        }
-
-        process.StartInfo.Arguments = ConfigFileName;
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.RedirectStandardError = true;
-        process.StartInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
-        process.StartInfo.RedirectStandardInput = false;
-        process.EnableRaisingEvents = true;
-        process.OutputDataReceived += (_, args) => output += args.Data + "\r\n";
-        process.ErrorDataReceived += (_, args) => output += args.Data + "\r\n";
-        process.Exited += (_, _) => { CanRunOtn = true; };
-
-        process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-        await process.WaitForExitAsync();
-        process.Close();
+        var output = await RunBackendProcessAsync("otn.exe", "otn.exe", () => { CanRunOtn = true; });
+        if (output is null) return;
 
         var fieldResultFile = Path.Combine(_currentDirectory!.FullName, OutputPrefix + FieldResultFileName);
         if (File.Exists(fieldResultFile))
@@ -298,7 +264,7 @@ public partial class OtnControlViewModel : ViewModelBase
         wallR.LineColor = Color.FromColor(System.Drawing.Color.Black);
         wallR.LinePattern = LinePattern.DenselyDashed;
         wallR.LineWidth = 1.5f;
-        
+
         Displayer2D.Plot.Axes.AutoScale();
         Displayer2D.Refresh();
 
@@ -328,6 +294,7 @@ public partial class OtnControlViewModel : ViewModelBase
             if (file is not null)
             {
                 File.Copy(geoResultFile, file.Path.AbsolutePath, true);
+                _logger.Information("Exported OTN result to {Path}", file.Path.AbsolutePath);
                 await MessageBoxManager.GetMessageBoxStandard("提示", "导出成功").ShowAsync();
             }
         }

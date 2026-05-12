@@ -37,10 +37,10 @@ public class Ellipse(double x0, double y0, double a, double b, double alpha = 0)
         for (int i = 0; i < n; ++i)
         {
             double theta = i * deltaTheta;
-            points[i].X = Center.X + A * double.Cos(theta) * double.Cos(Alpha) -
-                          B * double.Sin(theta) * double.Sin(Alpha);
-            points[i].Y = Center.Y + A * double.Cos(theta) * double.Sin(Alpha) +
-                          B * double.Sin(theta) * double.Cos(Alpha);
+            points[i] = new Point(Center.X + A * double.Cos(theta) * double.Cos(Alpha) -
+                                 B * double.Sin(theta) * double.Sin(Alpha),
+                                 Center.Y + A * double.Cos(theta) * double.Sin(Alpha) +
+                                 B * double.Sin(theta) * double.Cos(Alpha));
         }
 
         return points;

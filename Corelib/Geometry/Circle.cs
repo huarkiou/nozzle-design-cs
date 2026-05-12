@@ -21,8 +21,7 @@ public class Circle(double x0, double y0, double radius) : IClosedCurve
         for (int i = 0; i < n; ++i)
         {
             double theta = i * deltaTheta;
-            points[i].X = Center.X + Radius * double.Cos(theta);
-            points[i].Y = Center.Y + Radius * double.Sin(theta);
+            points[i] = new Point(Center.X + Radius * double.Cos(theta), Center.Y + Radius * double.Sin(theta));
         }
 
         return points;

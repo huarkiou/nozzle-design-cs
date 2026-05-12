@@ -1,9 +1,9 @@
 ﻿namespace Corelib.Geometry;
 
-public struct Point(double x, double y) : IEquatable<Point>
+public readonly struct Point(double x, double y) : IEquatable<Point>
 {
-    public double X { get; set; } = x;
-    public double Y { get; set; } = y;
+    public double X { get; } = x;
+    public double Y { get; } = y;
 
     public Point() : this(0, 0)
     {
@@ -81,14 +81,6 @@ public struct Point(double x, double y) : IEquatable<Point>
     public static double Dot(Point lhs, Point rhs)
     {
         return lhs.X * rhs.X + lhs.Y * rhs.Y;
-    }
-
-    public void RotateInPlace(Point origin, double angle)
-    {
-        double theta = PolarAngleTo(origin);
-        double l = DistanceTo(origin);
-        X = origin.X + l * Math.Cos(theta + angle);
-        Y = origin.Y + l * Math.Sin(theta + angle);
     }
 
     public Point Rotate(Point origin, double angle)

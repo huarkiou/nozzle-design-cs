@@ -6,7 +6,9 @@ using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using GuiApp.ViewModels;
 using GuiApp.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -40,18 +42,34 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         var serviceCollection = new ServiceCollection();
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
-            // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
-            DisableAvaloniaDataAnnotationValidation();
-            desktop.MainWindow = new MainWindow();
-            var topLevel = TopLevel.GetTopLevel(desktop.MainWindow);
-            serviceCollection.AddSingleton(topLevel!.StorageProvider);
-        }
 
+        // Register ViewModels via DI (singleton — shared across tabs)
+        serviceCollection.AddSingleton<OtnControlViewModel>();
+        serviceCollection.AddSingleton<SltnControlViewModel>();
+        serviceCollection.AddSingleton<MainWindowViewModel>();
+
+        // StorageProvider requires TopLevel from MainWindow — defer resolution with Lazy
+        var storageProviderHolder = new Lazy<IStorageProvider>(() =>
+        {
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+                && desktop.MainWindow is not null)
+            {
+                var topLevel = TopLevel.GetTopLevel(desktop.MainWindow);
+                return topLevel!.StorageProvider;
+            }
+            throw new InvalidOperationException("StorageProvider is not available before MainWindow is created.");
+        });
+        serviceCollection.AddSingleton(_ => storageProviderHolder.Value);
+
+        // Build ONCE — Ioc.Default can only be configured once
         var serviceProvider = serviceCollection.BuildServiceProvider();
         Ioc.Default.ConfigureServices(serviceProvider);
+
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            DisableAvaloniaDataAnnotationValidation();
+            desktop.MainWindow = new MainWindow();
+        }
 
         base.OnFrameworkInitializationCompleted();
     }

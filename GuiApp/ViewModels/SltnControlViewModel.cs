@@ -13,7 +13,6 @@ using GuiApp.Models;
 using GuiApp.Views;
 using MsBox.Avalonia;
 using ScottPlot;
-using ScottPlot.Avalonia;
 using SkiaSharp;
 using Tomlyn;
 using Tomlyn.Model;
@@ -22,7 +21,7 @@ using Point = Corelib.Geometry.Point;
 
 namespace GuiApp.ViewModels;
 
-public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldValueChangedMessages>
+public partial class SltnControlViewModel : NozzleControlViewModelBase, IRecipient<BaseFieldValueChangedMessages>
 {
     public SltnControlViewModel()
     {
@@ -38,10 +37,10 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
     public CrossSectionControl Inlet { get; } = new(CrossSectionPosition.Inlet) { Label = "进口截面形状：" };
     public CrossSectionControl Outlet { get; } = new(CrossSectionPosition.Outlet) { Label = "出口截面形状：" };
 
-    private DirectoryInfo? _currentDirectory;
-    private const string ConfigFileName = "sltn_config.toml";
     private const string DatResultFileName = "model.dat";
     private const string ObjResultFileName = "model.obj";
+
+    protected override string ConfigFileName => "sltn_config.toml";
 
     // Control
     [ObservableProperty]
@@ -76,8 +75,6 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
     public static string FieldDataSourceToolTip => "基准流场数据文件路径\n使用最大推力喷管功能计算时自动设置，但也可以手动指定";
 
     // View
-    public AvaPlot Displayer2D { get; } = new();
-
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RunSltnCommand), nameof(PreviewModelCommand))]
     public partial bool CanRunSltn { get; set; } = true;
@@ -161,8 +158,9 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
             {
                 c = normalize ? vm.GetNormalizedClosedCurve() : vm.GetRawClosedCurve();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.Warning(ex, "Failed to get closed curve from {ViewModelType}", vm.GetType().Name);
                 c = null;
             }
 
@@ -208,9 +206,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
         outletConfig += ((Outlet.DataContext as CrossSectionControlViewModel)!.CrossSectionInputer?.DataContext as
             ClosedCurveViewModel)?.GetTomlString();
 
-        _currentDirectory?.Delete(true);
-        _currentDirectory = Directory.CreateTempSubdirectory("guiapp-sltn-");
-        Console.WriteLine("{0}", _currentDirectory.FullName);
+        PrepareTempDirectory("guiapp-sltn-");
 
         var sltnConfigs = Toml.ToModel("""
                                        ###### 控制参数 ######
@@ -248,42 +244,12 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
             ((TomlTable)sltnConfigs["BaseFluidField"])["datasource_inlet"] = fieldDataSourceNormalized;
             ((TomlTable)sltnConfigs["BaseFluidField"])["datasource_outlet"] = fieldDataSourceNormalized;
         }
-        await File.WriteAllTextAsync(Path.Combine(_currentDirectory.FullName, ConfigFileName),
-            Toml.FromModel(sltnConfigs) + inletConfig + outletConfig);
+        await WriteConfigFileAsync(Toml.FromModel(sltnConfigs) + inletConfig + outletConfig);
 
-        string output = string.Empty;
-        var process = new Process();
-        process.StartInfo.WorkingDirectory = _currentDirectory.FullName;
-#if DEBUG
-        process.StartInfo.FileName = @"D:\Projects\Program\nozzle-design-rs\target\release\sltn.exe";
-#else
-        process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "sltn.exe");
-#endif
-        if (!File.Exists(process.StartInfo.FileName))
-        {
-            await MessageBoxManager.GetMessageBoxStandard("错误", $"文件缺失：{process.StartInfo.FileName}").ShowAsync();
-        }
+        var output = await RunBackendProcessAsync("sltn.exe", "sltn.exe", () => { CanRunSltn = true; });
+        if (output is null) return;
 
-        process.StartInfo.Arguments = ConfigFileName;
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.RedirectStandardError = true;
-        process.StartInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
-        process.StartInfo.RedirectStandardInput = false;
-        process.EnableRaisingEvents = true;
-        process.OutputDataReceived += (_, args) => output += args.Data + "\r\n";
-        process.ErrorDataReceived += (_, args) => output += args.Data + "\r\n";
-        process.Exited += (_, _) => { CanRunSltn = true; };
-
-        process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-        await process.WaitForExitAsync();
-        process.Close();
-
-        if (!File.Exists(Path.Combine(_currentDirectory.FullName, DatResultFileName)))
+        if (!File.Exists(Path.Combine(_currentDirectory!.FullName, DatResultFileName)))
         {
             await MessageBoxManager.GetMessageBoxStandard("错误", "无法正常计算，程序输出内容如下：\n" + output).ShowAsync();
         }
@@ -315,7 +281,9 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
 #endif
         if (!File.Exists(process.StartInfo.FileName))
         {
+            _logger.Warning("3D viewer not found, skipping: {Path}", process.StartInfo.FileName);
             await MessageBoxManager.GetMessageBoxStandard("错误", $"文件缺失：{process.StartInfo.FileName}").ShowAsync();
+            return;
         }
 
         process.StartInfo.Arguments = objResultFile;
@@ -327,6 +295,7 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
         process.Exited += (_, _) => { CanRunSltn = true; };
 
         process.Start();
+        _logger.Information("Started objviewer.exe (PID: {Pid})", process.Id);
         await process.WaitForExitAsync();
         process.Close();
     }
@@ -357,10 +326,12 @@ public partial class SltnControlViewModel : ViewModelBase, IRecipient<BaseFieldV
                 if (file.Path.AbsolutePath.EndsWith(".obj"))
                 {
                     File.Copy(objResultFile, file.Path.AbsolutePath, true);
+                    _logger.Information("Exported SLTN OBJ to {Path}", file.Path.AbsolutePath);
                 }
                 else if (file.Path.AbsolutePath.EndsWith(".dat"))
                 {
                     File.Copy(datResultFile, file.Path.AbsolutePath, true);
+                    _logger.Information("Exported SLTN DAT to {Path}", file.Path.AbsolutePath);
                 }
 
                 await MessageBoxManager.GetMessageBoxStandard("提示", "导出成功").ShowAsync();

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
@@ -9,6 +10,17 @@ namespace GuiApp.ViewModels;
 
 public partial class CrossSectionControlViewModel : ViewModelBase, IRecipient<NozzleSizeValueChangedMessages>
 {
+    private static readonly Dictionary<string, Func<UserControl?>> CrossSectionFactories = new()
+    {
+        ["圆"] = () => new CrossSectionCircle(),
+        ["椭圆"] = () => new CrossSectionEllipse(),
+        ["矩形"] = () => new CrossSectionRectangular(),
+        ["超椭圆"] = () => new CrossSectionSuperEllipse(),
+        ["自定义多边形"] = () => new CrossSectionPolygon(),
+        ["自由"] = () => null,
+        ["NURBS(目前仍未实现)"] = () => new CrossSectionNurbs(),
+    };
+
     public CrossSectionControlViewModel()
     {
         WeakReferenceMessenger.Default.Register<NozzleSizeValueChangedMessages, string>(this,
@@ -47,34 +59,9 @@ public partial class CrossSectionControlViewModel : ViewModelBase, IRecipient<No
 
     partial void OnSelectedCrossSectionTypeChanged(string value)
     {
-        if (value == CrossSectionShapes[0])
-        {
-            CrossSectionInputer = new CrossSectionCircle();
-        }
-        else if (value == CrossSectionShapes[1])
-        {
-            CrossSectionInputer = new CrossSectionEllipse();
-        }
-        else if (value == CrossSectionShapes[2])
-        {
-            CrossSectionInputer = new CrossSectionRectangular();
-        }
-        else if (value == CrossSectionShapes[3])
-        {
-            CrossSectionInputer = new CrossSectionSuperEllipse();
-        }
-        else if (value == CrossSectionShapes[4])
-        {
-            CrossSectionInputer = new CrossSectionPolygon();
-        }
-        else if (value == CrossSectionShapes[5])
-        {
-            CrossSectionInputer = null;
-        }
-        else if (value == CrossSectionShapes[6])
-        {
-            CrossSectionInputer = new CrossSectionNurbs();
-        }
+        CrossSectionInputer = CrossSectionFactories.TryGetValue(value, out var factory)
+            ? factory()
+            : new CrossSectionCircle();
     }
 
     [ObservableProperty]
