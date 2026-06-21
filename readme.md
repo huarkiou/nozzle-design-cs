@@ -45,11 +45,13 @@
 │  Corelib / GuiApp       │
 └──────────┬──────────────┘
            │ 子进程调用
-           ▼
-┌─────────────────────────┐
-│  nozzle-design-rs       │  ← Rust 计算后端
-│  otn.exe / sltn.exe     │    基于特征线法 (MOC)
-└─────────────────────────┘
+     ┌─────┴─────┐
+     ▼           ▼
+┌────────────┐ ┌──────────┐
+│nozzle-design│ │ objviewer│  ← Rust 后端
+│  -rs        │ │          │
+│ otn / sltn  │ │ objviewer│
+└────────────┘ └──────────┘
 ```
 
 本仓库不直接引用 Rust 库源代码，而是通过子进程调用编译好的可执行文件：
@@ -60,7 +62,9 @@
 | `sltn.exe` | 三维流线追踪喷管设计 |
 | `objviewer.exe` | 三维 OBJ 模型预览（[objviewer](https://github.com/huarkiou/objviewer)） |
 
-这些文件应放置在 `./tools/` 目录下（Release 模式），或在 Debug 模式下通过硬编码路径指向 `nozzle-design-rs` 的编译输出目录。
+这些文件应放置在 `./tools/` 目录下（Release 模式），或在 Debug 模式下通过硬编码路径指向各项目的编译输出目录。
+
+文件名后缀根据平台自动处理：Windows 下为 `otn.exe` / `sltn.exe` / `objviewer.exe`，Linux 下为 `otn` / `sltn` / `objviewer`（通过 `ExeExtension` 属性控制，见 `NozzleControlViewModelBase.cs`）。
 
 ## 项目架构
 
@@ -240,8 +244,8 @@ OTN 计算完成后，通过 CommunityToolkit.Mvvm 的 `WeakReferenceMessenger` 
 ### 系统要求
 
 - **.NET SDK** 10.0+
-- **Rust** 1.85+（用于编译 `nozzle-design-rs` 后端）
-- **Windows**（当前仅支持 Windows，依赖 `otn.exe` / `sltn.exe` 的 Windows 编译产物）
+- **Rust** 1.85+（用于编译 `nozzle-design-rs` 和 `objviewer` 后端）
+- **Windows** 或 **Linux**（跨平台支持）
 
 ### 获取代码
 
@@ -253,13 +257,33 @@ cd nozzle-design-cs
 ### 编译 Rust 后端
 
 ```bash
+# 特征线法引擎
 git clone https://github.com/huarkiou/nozzle-design-rs.git
 cd nozzle-design-rs
 cargo build -p otn --release
 cargo build -p sltn --release
+
+# 三维模型查看器
+git clone https://github.com/huarkiou/objviewer.git
+cd objviewer
+cargo build --release
 ```
 
-将编译产物复制到本仓库的 `./build/tools/` 目录下（Release 发布时使用），或保留在原位置（Debug 开发时使用，默认路径为 `D:\Projects\Program\nozzle-design-rs\target\release\`，可在 `OtnControlViewModel.cs` 和 `SltnControlViewModel.cs` 中修改 `#if DEBUG` 块内的硬编码路径）。
+**Release 发布：** 将编译产物复制到 `./tools/` 目录下，与 `GuiApp` 可执行文件同级：
+
+```
+程序目录/
+├── GuiApp(.exe)
+├── tools/
+│   ├── otn(.exe)
+│   ├── sltn(.exe)
+│   └── objviewer(.exe)
+└── ...
+```
+
+> Windows 下文件名带 `.exe` 后缀，Linux 下不带。程序会根据平台自动适配。
+
+**Debug 开发：** 保留编译产物在原位置，修改对应 ViewModel 中 `#if DEBUG` 块内的硬编码路径（`OtnControlViewModel.cs`、`SltnControlViewModel.cs`）。
 
 ### 编译 GUI
 
@@ -276,7 +300,10 @@ dotnet publish GuiApp -c Release
 
 ### CI/CD
 
-项目使用 GitHub Actions 进行自动构建与测试（`.github/workflows/dotnet.yml`），在 `ubuntu-latest` 上使用 .NET 9.0 SDK 执行 `dotnet build` 和 `dotnet test`。
+项目使用 GitHub Actions 进行自动构建与测试：
+
+- **CI**（`.github/workflows/dotnet.yml`）：在 `ubuntu-latest` 上使用 .NET 10.0 SDK 执行 `dotnet build` 和 `dotnet test`。
+- **Release**（`.github/workflows/release.yml`）：支持 Windows / Linux 双平台 Native AOT 发布，自动从 `nozzle-design-rs` 和 `objviewer` 最新 Release 下载预编译工具并打包。
 
 ## 使用方法
 
@@ -286,19 +313,21 @@ Release 发布版本期望以下文件结构（参见 `assets/file-tree.png`）�
 
 ```
 程序目录/
-├── GuiApp.exe                    # 主程序
+├── GuiApp(.exe)                  # 主程序
 ├── tools/
-│   ├── otn.exe                   # 最大推力喷管计算程序
-│   ├── sltn.exe                  # 流线追踪喷管计算程序
-│   └── objviewer.exe              # 三维模型预览工具
+│   ├── otn(.exe)                 # 最大推力喷管计算程序
+│   ├── sltn(.exe)                # 流线追踪喷管计算程序
+│   └── objviewer(.exe)           # 三维模型预览工具
 └── 其他依赖文件...
 ```
+
+> Windows 下文件名带 `.exe` 后缀，Linux 下不带。
 
 ![文件树示例](assets/file-tree.png)
 
 ### 快速开始
 
-1. 启动 `GuiApp.exe`
+1. 启动 `GuiApp`（Windows 下为 `GuiApp.exe`）
 2. 在 **最大推力喷管** 页签中设置好进口气流参数和几何约束
 3. 点击 **运行** 按钮，等待计算完成后自动显示喷管型面图
 4. 切换到 **流线追踪喷管** 页签，设置进口和出口截面形状
@@ -453,7 +482,7 @@ nozzle-design-cs/
 │   └── Views/                   # AXAML 视图与代码后置
 ├── assets/                      # 文档截图
 ├── build/                       # 编译产物目录（.gitignore 忽略）
-├── .github/workflows/           # CI 配置
+├── .github/workflows/           # CI (dotnet.yml) 与 Release (release.yml) 配置
 ├── nozzle-design-cs.sln         # Visual Studio 解决方案文件
 └── readme.md
 ```
