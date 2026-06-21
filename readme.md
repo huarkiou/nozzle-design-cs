@@ -29,13 +29,13 @@
 
 ## 项目简介
 
-本程序是 [nozzle-design-rs](https://github.com/huarkiou/nozzle-design-rs) 的 C# 图形化前端。核心喷管设计计算由 Rust 编写的命令行程序 `otn.exe` 与 `sltn.exe` 完成，GUI 程序负责：
+本程序是 [nozzle-design-rs](https://github.com/huarkiou/nozzle-design-rs) 和 [objviewer](https://github.com/huarkiou/objviewer) 的 C# 图形化前端。核心喷管设计计算由 Rust 编写的命令行程序 `otn` 与 `sltn` 完成，三维模型预览由 `objviewer` 完成，GUI 程序负责：
 
 - 提供直观的参数输入界面（滑块、文本框、文件选择器）
 - 生成 TOML 配置文件并调用 Rust 后端执行计算
 - 实时预览二维喷管型面与截面轮廓
 - 导出计算结果（`.dat` 格式用于 UG NX，`.obj` 格式用于三维查看）
-- 调用 `objviewer.exe` 进行三维模型预览
+- 调用 `objviewer` 进行三维模型预览
 
 ## 依赖关系
 
@@ -58,9 +58,9 @@
 
 | 可执行文件 | 用途 |
 |-----------|------|
-| `otn.exe` | 二维轴对称/平面最大推力喷管型面设计 |
-| `sltn.exe` | 三维流线追踪喷管设计 |
-| `objviewer.exe` | 三维 OBJ 模型预览（[objviewer](https://github.com/huarkiou/objviewer)） |
+| `otn(.exe)` | 二维轴对称/平面最大推力喷管型面设计 |
+| `sltn(.exe)` | 三维流线追踪喷管设计 |
+| `objviewer(.exe)` | 三维 OBJ 模型预览（[objviewer](https://github.com/huarkiou/objviewer)） |
 
 这些文件应放置在 `./tools/` 目录下（Release 模式），或在 Debug 模式下通过硬编码路径指向各项目的编译输出目录。
 
@@ -117,8 +117,17 @@ nozzle-design-cs/
 │       ├── LabeledSlider.axaml / .cs  # 带标签滑块控件
 │       ├── LabeledInput.axaml / .cs   # 带标签输入框控件
 │       └── BinarySelector.axaml / .cs # 二选一切换器控件
+├── Corelib.Tests/                    # xUnit 单元测试项目
+│   ├── Corelib.Tests.csproj
+│   ├── PointTests.cs                 # 点结构体测试
+│   ├── CircleTests.cs                # Circle / IClosedCurve 接口测试
+│   ├── EllipseTests.cs               # 椭圆截面测试
+│   ├── PolygonTests.cs               # 多边形截面测试
+│   ├── Ray2DTests.cs                 # 射线算法测试
+│   ├── RectangularTests.cs           # 矩形截面测试
+│   └── SuperEllipseTests.cs          # 超椭圆截面测试
 ├── assets/                           # 截图与示意图
-└── .github/workflows/dotnet.yml      # CI：.NET 9.0 构建与测试
+└── .github/workflows/                # CI (dotnet.yml) 与 Release (release.yml)
 ```
 
 ### Corelib 几何库设计
@@ -182,7 +191,7 @@ OTN 计算完成后，通过 CommunityToolkit.Mvvm 的 `WeakReferenceMessenger` 
 
 1. 在 OTN 页签中设置各项参数
 2. 点击"运行"按钮
-3. GUI 自动生成 TOML 配置文件，调用 `otn.exe` 执行计算
+3. GUI 自动生成 TOML 配置文件，调用 `otn` 执行计算
 4. 计算完成后自动绘制喷管二维型面轮廓
 5. 同时自动向 SLTN 页签传递基准流场数据
 
@@ -245,7 +254,8 @@ OTN 计算完成后，通过 CommunityToolkit.Mvvm 的 `WeakReferenceMessenger` 
 
 - **.NET SDK** 10.0+
 - **Rust** 1.85+（用于编译 `nozzle-design-rs` 和 `objviewer` 后端）
-- **Windows** 或 **Linux**（跨平台支持）
+- **Git**（用于获取源码和版本信息嵌入）
+- **Windows** 或 **Linux**（跨平台支持，macOS 理论支持但未经测试）
 
 ### 获取代码
 
@@ -283,7 +293,14 @@ cargo build --release
 
 > Windows 下文件名带 `.exe` 后缀，Linux 下不带。程序会根据平台自动适配。
 
-**Debug 开发：** 保留编译产物在原位置，修改对应 ViewModel 中 `#if DEBUG` 块内的硬编码路径（`OtnControlViewModel.cs`、`SltnControlViewModel.cs`）。
+**Debug 开发：** 保留编译产物在原位置，修改对应文件中 `#if DEBUG` 块内的硬编码路径：
+
+| 文件 | 涉及工具 | DEBUG 路径示例 |
+|------|---------|---------------|
+| `NozzleControlViewModelBase.cs` | otn, sltn | `D:\Projects\Program\nozzle-design-rs\target\release\` |
+| `SltnControlViewModel.cs` | objviewer | `D:\Apps\study\nozzle_design\obj_viewer\` |
+
+> 这些路径仅用于 Windows 开发环境，Release 模式下统一从 `./tools/` 目录加载。
 
 ### 编译 GUI
 
@@ -294,8 +311,12 @@ dotnet restore
 # Debug 模式编译运行
 dotnet run --project GuiApp
 
-# Release 模式发布（含 Native AOT 裁剪）
-dotnet publish GuiApp -c Release
+# Release 模式发布（Native AOT，需指定目标平台 RID）
+# Linux:
+dotnet publish GuiApp -c Release -r linux-x64
+dotnet publish GuiApp -c Release -r linux-x64 -o publish   # 指定输出目录
+# Windows:
+dotnet publish GuiApp -c Release -r win-x64
 ```
 
 ### CI/CD
@@ -475,14 +496,17 @@ nozzle-design-cs/
 ├── Corelib/                     # 核心几何库
 │   ├── Corelib.csproj           # .NET 10.0，MathNet.Numerics 依赖
 │   └── Geometry/                # 闭合曲线形状定义
+├── Corelib.Tests/               # xUnit 单元测试（51 个测试用例）
+│   ├── Corelib.Tests.csproj
+│   └── *Tests.cs                # 各几何类的单元测试
 ├── GuiApp/                      # Avalonia GUI 主程序
 │   ├── GuiApp.csproj            # WinExe, Native AOT, Avalonia 全家桶
 │   ├── Models/                  # 数据模型与消息定义
 │   ├── ViewModels/              # MVVM 视图模型
+│   │   └── NozzleControlViewModelBase.cs  # 后端调用基类（进程管理、ExeExtension）
 │   └── Views/                   # AXAML 视图与代码后置
 ├── assets/                      # 文档截图
-├── build/                       # 编译产物目录（.gitignore 忽略）
-├── .github/workflows/           # CI (dotnet.yml) 与 Release (release.yml) 配置
+├── .github/workflows/           # CI (dotnet.yml) 与 Release (release.yml)
 ├── nozzle-design-cs.sln         # Visual Studio 解决方案文件
 └── readme.md
 ```
