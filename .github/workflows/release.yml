@@ -94,13 +94,17 @@ jobs:
             case "${{ matrix.asset_suffix }}" in
               windows)
                 unzip -o "rs-tools/$asset" -d rs-tools
-                cp rs-tools/otn${{ matrix.ext }} publish/GuiApp/tools/otn${{ matrix.ext }}
-                cp rs-tools/sltn${{ matrix.ext }} publish/GuiApp/tools/sltn${{ matrix.ext }}
+                OTN=$(find rs-tools -name "otn${{ matrix.ext }}" -type f | head -1)
+                SLTN=$(find rs-tools -name "sltn${{ matrix.ext }}" -type f | head -1)
+                cp "$OTN" publish/GuiApp/tools/otn${{ matrix.ext }}
+                cp "$SLTN" publish/GuiApp/tools/sltn${{ matrix.ext }}
                 ;;
               linux)
                 tar -xzf "rs-tools/$asset" -C rs-tools
-                cp rs-tools/otn publish/GuiApp/tools/otn
-                cp rs-tools/sltn publish/GuiApp/tools/sltn
+                OTN=$(find rs-tools -name otn -type f | head -1)
+                SLTN=$(find rs-tools -name sltn -type f | head -1)
+                cp "$OTN" publish/GuiApp/tools/otn
+                cp "$SLTN" publish/GuiApp/tools/sltn
                 chmod +x publish/GuiApp/tools/otn publish/GuiApp/tools/sltn
                 ;;
             esac
@@ -134,11 +138,13 @@ jobs:
             case "${{ matrix.asset_suffix }}" in
               windows)
                 unzip -o "objviewer-dl/$asset" -d objviewer-dl
-                cp objviewer-dl/objviewer.exe publish/GuiApp/tools/objviewer.exe
+                VIEWER=$(find objviewer-dl -name "objviewer${{ matrix.ext }}" -type f | head -1)
+                cp "$VIEWER" publish/GuiApp/tools/objviewer${{ matrix.ext }}
                 ;;
               linux)
                 tar -xzf "objviewer-dl/$asset" -C objviewer-dl
-                cp objviewer-dl/objviewer publish/GuiApp/tools/objviewer
+                VIEWER=$(find objviewer-dl -name objviewer -type f | head -1)
+                cp "$VIEWER" publish/GuiApp/tools/objviewer
                 chmod +x publish/GuiApp/tools/objviewer
                 ;;
             esac
