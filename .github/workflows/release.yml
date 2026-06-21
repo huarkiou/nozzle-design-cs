@@ -60,35 +60,47 @@ jobs:
 
       # ── 下载 nozzle-design-rs 预编译工具 ──────────────────────────────
       - name: Download otn/sltn from nozzle-design-rs
-        if: ${{ inputs.include_rust_tools && matrix.os == 'windows-latest' }}
-        shell: pwsh
+        if: ${{ inputs.include_rust_tools }}
+        shell: bash
         run: |
-          $repo = "huarkiou/nozzle-design-rs"
-          $release = gh release view --repo $repo --json tagName,assets | ConvertFrom-Json
-          Write-Host "Latest nozzle-design-rs release: $($release.tagName)"
+          repo="huarkiou/nozzle-design-rs"
+          release=$(gh release view --repo "$repo" --json tagName,assets)
+          tag=$(echo "$release" | jq -r '.tagName')
+          echo "Latest nozzle-design-rs release: $tag"
 
-          $asset = $release.assets | Where-Object { $_.name -like "*-windows*.zip" } | Select-Object -First 1
+          case "${{ matrix.asset_suffix }}" in
+            windows) pattern="windows.*[.]zip" ;;
+            linux)   pattern="linux.*[.]tar[.]gz" ;;
+          esac
 
-          if ($asset) {
-            gh release download $release.tagName --repo $repo --pattern $asset.name --dir rs-tools
-            Expand-Archive -Path "rs-tools\$($asset.name)" -DestinationPath rs-tools -Force
+          asset=$(echo "$release" | jq -r ".assets[] | select(.name | test(\"$pattern\")) | .name" | head -1)
 
-            $otn = Get-ChildItem rs-tools -Filter otn.exe -Recurse | Select-Object -First 1
-            $sltn = Get-ChildItem rs-tools -Filter sltn.exe -Recurse | Select-Object -First 1
+          if [ -n "$asset" ]; then
+            gh release download "$tag" --repo "$repo" --pattern "$asset" --dir rs-tools
 
-            if ($otn) { Copy-Item $otn.FullName publish\GuiApp\tools\otn.exe; Write-Host "Extracted otn.exe" }
-            else { Write-Warning "otn.exe not found" }
-            if ($sltn) { Copy-Item $sltn.FullName publish\GuiApp\tools\sltn.exe; Write-Host "Extracted sltn.exe" }
-            else { Write-Warning "sltn.exe not found" }
-          } else {
-            Write-Warning "nozzle-design-rs ${{ matrix.asset_suffix }} asset not found"
-          }
+            case "${{ matrix.asset_suffix }}" in
+              windows)
+                unzip -o "rs-tools/$asset" -d rs-tools
+                cp rs-tools/otn${{ matrix.ext }} publish/GuiApp/tools/otn${{ matrix.ext }}
+                cp rs-tools/sltn${{ matrix.ext }} publish/GuiApp/tools/sltn${{ matrix.ext }}
+                ;;
+              linux)
+                tar -xzf "rs-tools/$asset" -C rs-tools
+                cp rs-tools/otn publish/GuiApp/tools/otn
+                cp rs-tools/sltn publish/GuiApp/tools/sltn
+                chmod +x publish/GuiApp/tools/otn publish/GuiApp/tools/sltn
+                ;;
+            esac
+            echo "Copied otn/sltn (${{ matrix.asset_suffix }})"
+          else
+            echo "Warning: No nozzle-design-rs ${{ matrix.asset_suffix }} asset found"
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
 
       # ── 下载 objviewer ─────────────────────────────────────────────────
       - name: Download objviewer (latest release)
-        if: ${{ inputs.include_obj_viewer && (matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest') }}
+        if: ${{ inputs.include_obj_viewer }}
         shell: bash
         run: |
           repo="huarkiou/objviewer"
