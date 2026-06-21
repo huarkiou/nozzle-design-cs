@@ -98,7 +98,7 @@ public partial class CrossSectionPolygonViewModel : ClosedCurveViewModel
         model["normalized"] = IsNormalized;
         if (double.IsFinite(X) && double.IsFinite(Y))
         {
-            model["center"] = (double[]) [X, Y];
+            model["center"] = (double[])[X, Y];
         }
 
         model["datasource"] = VerticesFilePath?.Replace('\\', '/') ?? string.Empty;

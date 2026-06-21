@@ -8,7 +8,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
-using MsBox.Avalonia.Enums;
 using Serilog;
 
 namespace GuiApp.ViewModels;

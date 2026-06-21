@@ -40,7 +40,7 @@ public partial class CrossSectionRectangularViewModel : ClosedCurveViewModel
                            """;
         var model = Tomlyn.Toml.ToModel(ret);
         model["normalized"] = IsNormalized;
-        model["center"] = (double[]) [X, Y];
+        model["center"] = (double[])[X, Y];
         model["length"] = Length;
         model["width"] = Width;
         model["alpha"] = Alpha;

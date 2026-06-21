@@ -246,7 +246,7 @@ public partial class SltnControlViewModel : NozzleControlViewModelBase, IRecipie
         }
         await WriteConfigFileAsync(Toml.FromModel(sltnConfigs) + inletConfig + outletConfig);
 
-        var output = await RunBackendProcessAsync("sltn.exe", "sltn.exe", () => { CanRunSltn = true; });
+        var output = await RunBackendProcessAsync($"sltn{ExeExtension}", $"sltn{ExeExtension}", () => { CanRunSltn = true; });
         if (output is null) return;
 
         if (!File.Exists(Path.Combine(_currentDirectory!.FullName, DatResultFileName)))
@@ -275,9 +275,9 @@ public partial class SltnControlViewModel : NozzleControlViewModelBase, IRecipie
         var process = new Process();
         process.StartInfo.WorkingDirectory = _currentDirectory.FullName;
 #if DEBUG
-        process.StartInfo.FileName = @"D:\Apps\study\nozzle_design\obj_viewer\objviewer.exe";
+        process.StartInfo.FileName = $@"D:\Apps\study\nozzle_design\obj_viewer\objviewer{ExeExtension}";
 #else
-        process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", "objviewer.exe");
+        process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "tools", $"objviewer{ExeExtension}");
 #endif
         if (!File.Exists(process.StartInfo.FileName))
         {
@@ -295,7 +295,7 @@ public partial class SltnControlViewModel : NozzleControlViewModelBase, IRecipie
         process.Exited += (_, _) => { CanRunSltn = true; };
 
         process.Start();
-        _logger.Information("Started objviewer.exe (PID: {Pid})", process.Id);
+        _logger.Information("Started objviewer{ExeExtension} (PID: {Pid})", ExeExtension, process.Id);
         await process.WaitForExitAsync();
         process.Close();
     }

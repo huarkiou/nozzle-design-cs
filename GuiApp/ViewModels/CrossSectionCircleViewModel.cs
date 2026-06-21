@@ -30,7 +30,7 @@ public partial class CrossSectionCircleViewModel : ClosedCurveViewModel
                            """;
         var model = Tomlyn.Toml.ToModel(ret);
         model["normalized"] = IsNormalized;
-        model["center"] = (double[]) [X, Y];
+        model["center"] = (double[])[X, Y];
         model["radius"] = Radius;
         return Tomlyn.Toml.FromModel(model);
     }

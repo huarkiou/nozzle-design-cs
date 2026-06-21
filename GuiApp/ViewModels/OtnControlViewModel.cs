@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
@@ -215,7 +214,7 @@ public partial class OtnControlViewModel : NozzleControlViewModelBase
         }
         await WriteConfigFileAsync(tomlOutput);
 
-        var output = await RunBackendProcessAsync("otn.exe", "otn.exe", () => { CanRunOtn = true; });
+        var output = await RunBackendProcessAsync($"otn{ExeExtension}", $"otn{ExeExtension}", () => { CanRunOtn = true; });
         if (output is null) return;
 
         var fieldResultFile = Path.Combine(_currentDirectory!.FullName, OutputPrefix + FieldResultFileName);

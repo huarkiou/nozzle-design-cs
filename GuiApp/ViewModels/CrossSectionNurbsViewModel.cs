@@ -63,7 +63,7 @@ public partial class CrossSectionNurbsViewModel : ClosedCurveViewModel
             _controlPoints = null;
         }
     }
-    
+
     public override string GetTomlString()
     {
         const string ret = """
@@ -82,7 +82,7 @@ public partial class CrossSectionNurbsViewModel : ClosedCurveViewModel
         model["normalized"] = IsNormalized;
         if (double.IsFinite(X) && double.IsFinite(Y))
         {
-            model["center"] = (double[]) [X, Y];
+            model["center"] = (double[])[X, Y];
         }
 
         model["datasource"] = NurbsFilePath?.Replace('\\', '/') ?? string.Empty;

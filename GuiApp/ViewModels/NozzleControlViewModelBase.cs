@@ -1,8 +1,8 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
 using MsBox.Avalonia;
 using ScottPlot.Avalonia;
 using Serilog;
@@ -23,6 +23,12 @@ public abstract class NozzleControlViewModelBase : ViewModelBase
     /// Shared 2D plot control for nozzle geometry / cross-section display.
     /// </summary>
     public AvaPlot Displayer2D { get; } = new();
+
+    /// <summary>
+    /// ".exe" on Windows, empty string otherwise.
+    /// </summary>
+    protected static string ExeExtension =>
+        RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "";
 
     protected NozzleControlViewModelBase()
     {

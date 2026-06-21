@@ -46,7 +46,7 @@ public partial class CrossSectionSuperEllipseViewModel : ClosedCurveViewModel
                            """;
         var model = Tomlyn.Toml.ToModel(ret);
         model["normalized"] = IsNormalized;
-        model["center"] = (double[]) [X, Y];
+        model["center"] = (double[])[X, Y];
         model["a"] = A;
         model["b"] = B;
         model["alpha"] = Alpha;
