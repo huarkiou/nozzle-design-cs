@@ -18,7 +18,6 @@ public partial class CrossSectionControlViewModel : ViewModelBase, IRecipient<No
         ["超椭圆"] = () => new CrossSectionSuperEllipse(),
         ["自定义多边形"] = () => new CrossSectionPolygon(),
         ["自由"] = () => null,
-        ["NURBS(目前仍未实现)"] = () => new CrossSectionNurbs(),
     };
 
     public CrossSectionControlViewModel()
@@ -52,7 +51,7 @@ public partial class CrossSectionControlViewModel : ViewModelBase, IRecipient<No
     [ObservableProperty]
     public partial CrossSectionPosition Position { get; set; }
 
-    public static List<string> CrossSectionShapes { get; } = ["圆", "椭圆", "矩形", "超椭圆", "自定义多边形", "自由", "NURBS(目前仍未实现)"];
+    public static List<string> CrossSectionShapes { get; } = ["圆", "椭圆", "矩形", "超椭圆", "自定义多边形", "自由"];
 
     [ObservableProperty]
     public partial string SelectedCrossSectionType { get; set; } = CrossSectionShapes[0];

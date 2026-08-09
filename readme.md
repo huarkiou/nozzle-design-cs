@@ -117,8 +117,7 @@ nozzle-design-cs/
 │   │   ├── CrossSectionEllipseViewModel.cs  # 椭圆截面参数 VM
 │   │   ├── CrossSectionRectangularViewModel.cs  # 矩形截面参数 VM
 │   │   ├── CrossSectionSuperEllipseViewModel.cs # 超椭圆截面参数 VM
-│   │   ├── CrossSectionPolygonViewModel.cs  # 自定义多边形 VM
-│   │   └── CrossSectionNurbsViewModel.cs    # NURBS 截面 VM（未实现）
+│   │   └── CrossSectionPolygonViewModel.cs  # 自定义多边形 VM
 │   └── Views/
 │       ├── MainWindow.axaml / .cs   # 主窗口（TabControl 布局）
 │       ├── OtnControl.axaml / .cs   # OTN 参数输入视图
@@ -129,7 +128,6 @@ nozzle-design-cs/
 │       ├── CrossSectionRectangular.axaml / .cs  # 矩形截面输入
 │       ├── CrossSectionSuperEllipse.axaml / .cs # 超椭圆截面输入
 │       ├── CrossSectionPolygon.axaml / .cs   # 多边形截面输入
-│       ├── CrossSectionNurbs.axaml / .cs     # NURBS 截面输入（占位）
 │       ├── LabeledSlider.axaml / .cs  # 带标签滑块控件
 │       ├── LabeledInput.axaml / .cs   # 带标签输入框控件
 │       └── BinarySelector.axaml / .cs # 二选一切换器控件
@@ -226,7 +224,7 @@ OTN 计算完成后，通过 CommunityToolkit.Mvvm 的 `WeakReferenceMessenger` 
 | 矩形 (Rectangular) | 中心 (z, y), 长 L, 宽 W, 旋转角 α |
 | 超椭圆 (SuperEllipse) | 中心 (z, y), 长半轴 a, 短半轴 b, 幂次 n, 旋转角 α |
 | 自定义多边形 | 顶点坐标文件 + 旋转角 α |
-| 自由截面 | 无约束（NURBS 截面尚未实现） |
+| 自由截面 | 无约束 |
 
 **控制参数：**
 
