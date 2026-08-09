@@ -66,6 +66,22 @@
 
 文件名后缀根据平台自动处理：Windows 下为 `otn.exe` / `sltn.exe` / `objviewer.exe`，Linux 下为 `otn` / `sltn` / `objviewer`（通过 `ExeExtension` 属性控制，见 `NozzleControlViewModelBase.cs`）。
 
+### 版本对齐与兼容性
+
+本 GUI 与 Rust 后端通过**文件格式契约**耦合（而非 API）：
+
+| 契约 | 说明 |
+|------|------|
+| TOML 配置 schema | GUI 生成的 `otn_config.toml` / `sltn_config.toml` 字段名、类型、单位以 nozzle-design-rs 的 serde 定义为准（详见其 readme「相关仓库与互操作契约」） |
+| 输出文件名 | `geo_all.dat`、`field_data.txt`、`model.obj` 等文件名由 GUI 硬编码 |
+| `.obj` 格式 | `sltn` 导出的 `v`/`vn`/`f v//vn` 子集供 objviewer 解析 |
+
+**兼容性规则**：
+
+1. nozzle-design-rs 的配置结构已启用 `deny_unknown_fields`——本 GUI 生成配置时若字段名不匹配会立即报错，不会静默失效。
+2. 升级任一仓库时，三个仓库应保持同步（尤其是 nozzle-design-rs 的 TOML schema 或输出文件名变更时，必须先更新本 GUI 再发布）。
+3. 修改 GUI 生成的配置结构后，用 `otn`/`sltn` 实际运行一遍验证；修改 `.obj` 导出后，用 objviewer 打开验证。
+
 ## 项目架构
 
 ```
